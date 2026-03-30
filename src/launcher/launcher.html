@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexSense</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="launcher.css" />
+</head>
+<body>
+  <!-- Custom title bar -->
+  <div id="title-bar">
+    <span class="app-title"><strong><em>ApexSense</em></strong> <span class="by-line">by David Munoz Jensen</span></span>
+    <div class="window-controls">
+      <button id="btn-minimize" title="Minimize">─</button>
+      <button id="btn-close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- Status banner -->
+    <div id="status-bar">
+      <span id="status-dot"></span>
+      <span id="status-text">Overlay stopped</span>
+    </div>
+
+    <!-- Start / Stop -->
+    <div class="section">
+      <button id="btn-toggle" class="btn-primary">START OVERLAY</button>
+    </div>
+
+    <!-- Tabs -->
+    <div id="tabs">
+      <button class="tab active" data-tab="appearance">General</button>
+      <button class="tab" data-tab="tires">Tires</button>
+      <button class="tab" data-tab="radar">Radar</button>
+    </div>
+
+    <!-- General tab -->
+    <div class="tab-panel active" id="panel-appearance">
+      <p class="hint">Proximity radar shows nearby cars around you in a top-down view.</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="set-aot" checked />
+        <span class="label-text">Always on Top</span>
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="set-locked" />
+        <span class="label-text">Lock overlays (click-through)</span>
+      </label>
+      <label>
+        <span class="label-text">Poll Interval (ms)</span>
+        <input type="number" id="set-poll" value="200" min="50" max="2000" step="50" />
+      </label>
+      <p class="hint">Controls how frequently your telemetry refreshes.</p>
+      <ul class="hint-list">
+        <li>50–100 ms → very smooth, higher CPU usage</li>
+        <li>100–200 ms → balanced (recommended)</li>
+        <li>200+ ms → lower CPU, slower updates</li>
+      </ul>
+
+      <div class="fuel-section">
+        <div class="fuel-icon">⛽</div>
+        <div class="fuel-text">
+          <strong>Fuel the Development</strong>
+          <p>Help keep this tool running and improving with your support.</p>
+        </div>
+      </div>
+
+      <!-- Footer buttons for General tab -->
+      <div class="section footer-buttons">
+        <button id="btn-save-general" class="btn-save">Save Settings</button>
+        <span id="save-status" class="save-status"></span>
+        <button id="btn-about" class="btn-about">About / FAQ</button>
+      </div>
+    </div>
+
+    <!-- Tires tab -->
+    <div class="tab-panel" id="panel-tires">
+      <p class="hint">Proximity radar shows nearby cars around you in a top-down view.</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="set-radar-enabled" checked />
+        <span class="label-text">Enable Radar</span>
+      </label>
+      <label>
+        <span class="label-text">Widget Scale</span>
+        <input type="range" id="set-scale" min="0.5" max="2.5" step="0.1" value="1.0" />
+        <span class="val" id="val-scale">1.0</span>
+      </label>
+      <label>
+        <span class="label-text">Opacity</span>
+        <input type="range" id="set-opacity" min="0.2" max="1" step="0.05" value="0.9" />
+        <span class="val" id="val-opacity">0.9</span>
+      </label>
+      <div class="section-divider"></div>
+      <p class="hint">Temperature thresholds in °C. Adjust per car / tire compound.</p>
+      <div class="threshold-diagram">
+        <span class="zone cold">COLD</span>
+        <span class="zone warm">WARM</span>
+        <span class="zone ideal">IDEAL</span>
+        <span class="zone hot">HOT</span>
+        <span class="zone overheat">OVERHEAT</span>
+      </div>
+      <label>
+        <span class="label-text">Cold → Warming</span>
+        <input type="number" id="th-coldRedMax" value="50" />
+        <span class="unit">°C</span>
+      </label>
+      <label>
+        <span class="label-text">Warming → Ideal</span>
+        <input type="number" id="th-coldYellowMax" value="70" />
+        <span class="unit">°C</span>
+      </label>
+      <label>
+        <span class="label-text">Ideal → Hot</span>
+        <input type="number" id="th-hotYellowMin" value="110" />
+        <span class="unit">°C</span>
+      </label>
+      <label>
+        <span class="label-text">Hot → Overheat</span>
+        <input type="number" id="th-hotRedMin" value="130" />
+        <span class="unit">°C</span>
+      </label>
+
+      <div class="section footer-buttons">
+        <button id="btn-save-tires" class="btn-save">Save Settings</button>
+        <span id="save-status-tires" class="save-status"></span>
+      </div>
+    </div>
+
+    <!-- Radar tab -->
+    <div class="tab-panel" id="panel-radar">
+      <p class="hint">Proximity radar shows nearby cars around you in a top-down view.</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="set-radar-enabled-radar" checked />
+        <span class="label-text">Enable Radar</span>
+      </label>
+      <label>
+        <span class="label-text">Radar Range</span>
+        <input type="range" id="set-radar-range" min="15" max="60" step="5" value="40" />
+        <span class="val" id="val-radar-range">40</span>
+        <span class="unit">m</span>
+      </label>
+      <label>
+        <span class="label-text">Radar Scale</span>
+        <input type="range" id="set-radar-scale" min="0.5" max="2.5" step="0.1" value="1.0" />
+        <span class="val" id="val-radar-scale">1.0</span>
+      </label>
+      <label>
+        <span class="label-text">Radar Opacity</span>
+        <input type="range" id="set-radar-opacity" min="0.2" max="1" step="0.05" value="0.9" />
+        <span class="val" id="val-radar-opacity">0.9</span>
+      </label>
+      <label>
+        <span class="label-text">Car Width</span>
+        <input type="range" id="set-car-width" min="8" max="60" step="1" value="20" />
+        <span class="val" id="val-car-width">20</span>
+      </label>
+      <label>
+        <span class="label-text">Car Height</span>
+        <input type="range" id="set-car-height" min="20" max="100" step="1" value="48" />
+        <span class="val" id="val-car-height">48</span>
+      </label>
+      <div class="radar-legend">
+        <span class="legend-item"><span class="dot red"></span> &lt; 5 m (danger)</span>
+        <span class="legend-item"><span class="dot yellow"></span> 5–15 m (caution)</span>
+        <span class="legend-item"><span class="dot green"></span> &gt; 15 m (safe)</span>
+      </div>
+
+      <div class="section footer-buttons">
+        <button id="btn-save-radar" class="btn-save">Save Settings</button>
+        <span id="save-status-radar" class="save-status"></span>
+      </div>
+    </div>
+
+  </div>
+
+    <script src="../../dist/launcher/launcherRenderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iRacing Proximity Radar</title>
+  <link rel="stylesheet" href="radarStyles.css" />
+</head>
+<body>
+  <!-- Drag handle — only active when overlay is unlocked -->
+  <div id="drag-bar">
+    <span class="title">RADAR</span>
+  </div>
+
+  <!-- Radar canvas -->
+  <div id="radar-container">
+    <canvas id="radar-canvas"></canvas>
+  </div>
+
+  <!-- Status when not connected -->
+  <div id="status-message" class="hidden"></div>
+
+  <script src="../../dist/renderer/radarRenderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+{
+  "categories": [
+    {
+      "name": "Road",
+      "cars": [
+        {
+          "name": "Mazda MX-5 Cup",
+          "class": "Rookie",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Toyota GR86",
+          "class": "Rookie",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "BMW M2 CS Racing",
+          "class": "Touring / Rookie",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "BMW M4 GT3",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Ferrari 296 GT3",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Mercedes-AMG GT3",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Audi R8 LMS GT3",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Lamborghini Huracán GT3 EVO",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Porsche 911 GT3 R",
+          "class": "GT3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "BMW M4 GT4",
+          "class": "GT4",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Porsche 718 Cayman GT4",
+          "class": "GT4",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Mercedes-AMG GT4",
+          "class": "GT4",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "McLaren 570S GT4",
+          "class": "GT4",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Porsche 911 RSR",
+          "class": "GTE",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Ferrari 488 GTE",
+          "class": "GTE",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "BMW M8 GTE",
+          "class": "GTE",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Corvette C8.R",
+          "class": "GTE",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dallara P217",
+          "class": "LMP2",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Cadillac V-Series.R GTP",
+          "class": "GTP",
+          "drivetrain": "RWD_Hybrid"
+        },
+        {
+          "name": "BMW M Hybrid V8",
+          "class": "GTP",
+          "drivetrain": "RWD_Hybrid"
+        },
+        {
+          "name": "Acura ARX-06",
+          "class": "GTP",
+          "drivetrain": "RWD_Hybrid"
+        },
+        {
+          "name": "Hyundai Elantra N TCR",
+          "class": "TCR",
+          "drivetrain": "FWD"
+        },
+        {
+          "name": "Honda Civic Type R TCR",
+          "class": "TCR",
+          "drivetrain": "FWD"
+        },
+        {
+          "name": "Audi RS3 LMS TCR",
+          "class": "TCR",
+          "drivetrain": "FWD"
+        },
+        {
+          "name": "Audi 90 GTO",
+          "class": "GTO",
+          "drivetrain": "AWD"
+        }
+      ]
+    },
+    {
+      "name": "Formula",
+      "cars": [
+        {
+          "name": "Formula Vee",
+          "class": "Entry",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Formula Ford 1600",
+          "class": "Entry",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "FIA Formula 4",
+          "class": "F4",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dallara F3",
+          "class": "F3",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dallara IR-18",
+          "class": "IndyCar",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Mercedes-AMG W13",
+          "class": "F1",
+          "drivetrain": "RWD_Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "Oval",
+      "cars": [
+        {
+          "name": "NASCAR Cup Series Next Gen",
+          "class": "Cup",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "NASCAR Xfinity",
+          "class": "Xfinity",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "NASCAR Truck Series",
+          "class": "Truck",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "ARCA Menards",
+          "class": "ARCA",
+          "drivetrain": "RWD"
+        }
+      ]
+    },
+    {
+      "name": "Dirt Oval",
+      "cars": [
+        {
+          "name": "Dirt Sprint Car 410",
+          "class": "Sprint",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dirt Sprint Car 360",
+          "class": "Sprint",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dirt Sprint Car 305",
+          "class": "Sprint",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dirt Late Model",
+          "class": "Late Model",
+          "drivetrain": "RWD"
+        },
+        {
+          "name": "Dirt Modified",
+          "class": "Modified",
+          "drivetrain": "RWD"
+        }
+      ]
+    },
+    {
+      "name": "Rallycross",
+      "cars": [
+        {
+          "name": "Ford Fiesta Rallycross",
+          "class": "RX",
+          "drivetrain": "AWD"
+        },
+        {
+          "name": "Volkswagen Beetle Rallycross",
+          "class": "RX",
+          "drivetrain": "AWD"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "apexsense",
+  "version": "1.0.0",
+  "description": "ApexSense – iRacing telemetry overlay widget using Electron",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "dev": "tsc && electron .",
+    "watch": "tsc --watch",
+    "postinstall": "electron-builder install-app-deps",
+    "package": "npm run build && npx @electron/packager . ApexSense --platform=win32 --arch=x64 --out=release --overwrite --no-asar --icon=img/icon.ico --ignore=\"(src/.*\\.ts$|tsconfig|\\.gitignore|test_|\\.bat$|ABOUT|release|electron-test|dist/win-unpacked|dist/builder-|node_modules/@electron/packager|\\.map$|\\.d\\.ts|gen-icon|png-to-ico|sharp)\""
+  },
+  "build": {
+    "appId": "com.apexsense.overlay",
+    "productName": "ApexSense",
+    "asar": false,
+    "win": {
+      "target": "portable"
+    },
+    "files": [
+      "dist/**/*",
+      "src/renderer/**/*.html",
+      "src/renderer/**/*.css",
+      "src/launcher/**/*.html",
+      "src/launcher/**/*.css"
+    ]
+  },
+  "devDependencies": {
+    "@electron/packager": "^19.1.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "irsdk-node": "^4.4.0"
+  }
+}

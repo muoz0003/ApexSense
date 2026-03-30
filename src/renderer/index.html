@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexSense</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Drag handle — only active when overlay is unlocked -->
+  <div id="drag-bar">
+    <span class="title"><strong>ApexSense</strong> Tire Information</span>
+  </div>
+
+  <!-- Main tire grid -->
+  <div id="tire-container">
+    <div class="tire-row">
+      <div class="tire-block" id="tire-LF">
+        <span class="tire-label">LEFT FRONT</span>
+        <div class="tire-zones">
+          <div class="zone-cell" data-zone="outside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="middle">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="inside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+        </div>
+        <span class="tire-pressure">-- kPa</span>
+      </div>
+      <div class="tire-block" id="tire-RF">
+        <span class="tire-label">RIGHT FRONT</span>
+        <div class="tire-zones">
+          <div class="zone-cell" data-zone="outside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="middle">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="inside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+        </div>
+        <span class="tire-pressure">-- kPa</span>
+      </div>
+    </div>
+    <div class="tire-row">
+      <div class="tire-block" id="tire-LR">
+        <span class="tire-label">LEFT REAR</span>
+        <div class="tire-zones">
+          <div class="zone-cell" data-zone="outside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="middle">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="inside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+        </div>
+        <span class="tire-pressure">-- kPa</span>
+      </div>
+      <div class="tire-block" id="tire-RR">
+        <span class="tire-label">RIGHT REAR</span>
+        <div class="tire-zones">
+          <div class="zone-cell" data-zone="outside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="middle">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+          <div class="zone-cell" data-zone="inside">
+            <span class="zone-temp">--°</span>
+            <span class="zone-wear">--%</span>
+          </div>
+        </div>
+        <span class="tire-pressure">-- kPa</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimate banner shown when temps are estimated -->
+  <div id="estimate-banner" class="hidden">
+    <span class="estimate-title">Estimated Temperatures</span>
+    <span class="estimate-subtitle">Real data updates in pit box</span>
+  </div>
+
+  <!-- Status message when iRacing is not connected -->
+  <div id="status-message" class="hidden"></div>
+
+  <script src="../../dist/renderer/renderer.js"></script>
+</body>
+</html>

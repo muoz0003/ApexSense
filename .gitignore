@@ -1,0 +1,4 @@
+node_modules/
+dist/
+*.js.map
+release/ApexSense-win32-x64/
