@@ -9,7 +9,9 @@ Real-time iRacing telemetry overlay widget built with Electron. Displays **live 
 
 ## Download
 
-**[Download the latest release (.zip)](https://github.com/muoz0003/ApexSense/releases)** — no installation or Node.js required. Extract the zip and run `ApexSense.exe`.
+**[Download the latest release (.zip)](https://davidmunozjensen.com/ApexSense/ApexSense-win32-x64.zip)** — no installation or Node.js required. Extract the zip and run `ApexSense.exe`.
+
+**[Support & info](https://davidmunozjensen.com/apexsense-support.html)**
 
 ---
 
