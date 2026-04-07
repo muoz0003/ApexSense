@@ -19,6 +19,50 @@ export interface TireData {
   pressureKpa: number;
 }
 
+export interface DrivingData {
+  throttle: number;       // 0-1
+  brake: number;          // 0-1
+  steeringAngle: number;  // radians (negative = left)
+  speed: number;          // m/s
+  latAccel: number;       // m/s² (positive = turning right)
+  longAccel: number;      // m/s² (positive = accelerating)
+  gear: number;           // 0=N, 1-n=forward, -1=R
+  rpm: number;
+  lapDistPct: number;     // 0-1 (player's track position)
+  onPitRoad: boolean;
+  lapCurrentTime: number; // seconds
+  lapLastTime: number;    // seconds (0 if no previous lap)
+  lapBestTime: number;    // seconds (0 if no best)
+}
+
+export interface SessionInfo {
+  carName: string;    // e.g. "Dallara F3"
+  carPath: string;    // e.g. "dallara_f3"
+  trackName: string;  // e.g. "Spa-Francorchamps"
+  trackConfig: string;
+  sessionType: string; // "Practice", "Race", "Qualify" etc.
+  playerClub: string; // iRacing club name (used for country flag lookup)
+}
+
+export interface StandingEntry {
+  carIdx: number;
+  position: number;   // 1-based; 0 = no valid position yet
+  userName: string;
+  carNumber: string;
+  flairName: string;  // iRacing FlairName → country flag
+  iRating: number;    // 0 if unavailable
+  licString: string;  // e.g. "A 2.34"
+  lap: number;        // current lap number
+  bestLapTime: number; // seconds, 0 if none
+  lastLapTime: number; // seconds, 0 if none
+  incidents: number;  // CurDriverIncidentCount from session YAML
+  carMake: string;    // e.g. "Dallara IR18"
+  carClassId: number;    // iRacing CarClassID
+  carClassName: string;  // e.g. "GT4", "LMP3"
+  carClassColor: number; // 24-bit RGB from YAML
+  isPlayer: boolean;
+}
+
 export interface NearbyCarInfo {
   carIdx: number;
   relativeDistM: number;
@@ -37,6 +81,10 @@ export interface TelemetrySnapshot {
   connected: boolean;
   tires: TireData[];
   radar: RadarSnapshot;
+  driving: DrivingData | null;
+  session: SessionInfo | null;
+  weather: { airTempC: number; trackTempC: number } | null;
+  standings: StandingEntry[];
 }
 
 type TelemetryListener = (snapshot: TelemetrySnapshot) => void;
@@ -48,6 +96,10 @@ let latestSnapshot: TelemetrySnapshot = {
   connected: false,
   tires: [],
   radar: { connected: false, playerSpeed: 0, carLeftRight: 0, nearbyCars: [], trackLengthM: 0 },
+  driving: null,
+  session: null,
+  weather: null,
+  standings: [],
 };
 const listeners: TelemetryListener[] = [];
 
@@ -101,6 +153,10 @@ function spawnWorker(pollIntervalMs: number, radarRange: number): void {
         connected: false,
         tires: [],
         radar: { connected: false, playerSpeed: 0, carLeftRight: 0, nearbyCars: [], trackLengthM: 0 },
+        driving: null,
+        session: null,
+        weather: null,
+        standings: [],
       };
       notifyListeners();
     }

@@ -1,15 +1,15 @@
 {
   "name": "apexsense",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "ApexSense – iRacing telemetry overlay widget using Electron",
   "main": "dist/main/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs=require('fs'),path=require('path');fs.copyFileSync('src/coach/coach.html','dist/coach/coach.html');fs.copyFileSync('src/coach/coach.css','dist/coach/coach.css');\"",
     "start": "npm run build && electron .",
     "dev": "tsc && electron .",
     "watch": "tsc --watch",
     "postinstall": "electron-builder install-app-deps",
-    "package": "npm run build && npx @electron/packager . ApexSense --platform=win32 --arch=x64 --out=release --overwrite --no-asar --icon=img/icon.ico --ignore=\"(src/.*\\.ts$|tsconfig|\\.gitignore|test_|\\.bat$|ABOUT|release|electron-test|dist/win-unpacked|dist/builder-|node_modules/@electron/packager|\\.map$|\\.d\\.ts|gen-icon|png-to-ico|sharp)\""
+    "package": "npm run build && npx @electron/packager . ApexSense --platform=win32 --arch=x64 --out=release --overwrite --no-asar --icon=img/icon.ico --ignore=\"(src/.*\\.ts$|tsconfig|\\.gitignore|test_|\\.bat$|ABOUT|release|electron-test|dist/win-unpacked|dist/builder-|node_modules/@electron/packager|\\.map$|\\.d\\.ts|gen-icon|png-to-ico|sharp|car-logos-dataset-master|country-flags/(scripts|package\\.json|README\\.md|\\.gitignore))\""
   },
   "build": {
     "appId": "com.apexsense.overlay",

@@ -56,22 +56,24 @@ interface Window {
 (function () {
 
 // ── ApexSense color palette ──────────────────────────────────────────────────
-// Tire zone background colors mapped to temperature thresholds:
-//   #16231f (very cold) → #213c30 (warming/ideal) → #433b24 (hot) → #412126 (overheat)
+// Tire zone background colors mapped to temperature thresholds.
+// Each state tints the near-black base with a clear functional hue:
+//   cold (deep blue) → warming (teal-green) → ideal (forest green)
+//        → hot (dark amber) → overheating (dark crimson)
 function temperatureToZoneColor(tempC: number, t: TireThresholds): string {
-  if (tempC <= t.coldRedMax) return '#16231f';
+  if (tempC <= t.coldRedMax) return '#0d1521';
   if (tempC < t.coldYellowMax) {
     const pct = (tempC - t.coldRedMax) / (t.coldYellowMax - t.coldRedMax);
-    return lerpColor(0x16,0x23,0x1f, 0x21,0x3c,0x30, pct);
+    return lerpColor(0x0d,0x15,0x21, 0x14,0x28,0x18, pct);
   }
-  if (tempC <= t.hotYellowMin) return '#213c30';
+  if (tempC <= t.hotYellowMin) return '#142818';
   if (tempC <= t.hotRedMin) {
     const pct = (tempC - t.hotYellowMin) / (t.hotRedMin - t.hotYellowMin);
-    return lerpColor(0x21,0x3c,0x30, 0x43,0x3b,0x24, pct);
+    return lerpColor(0x14,0x28,0x18, 0x2c,0x22,0x0e, pct);
   }
   const overRange = (t.hotRedMin - t.hotYellowMin) || 20;
   const pct = Math.min(1, (tempC - t.hotRedMin) / overRange);
-  return lerpColor(0x43,0x3b,0x24, 0x41,0x21,0x26, pct);
+  return lerpColor(0x2c,0x22,0x0e, 0x2c,0x0f,0x16, pct);
 }
 
 function lerpColor(r1:number,g1:number,b1:number, r2:number,g2:number,b2:number, t:number): string {

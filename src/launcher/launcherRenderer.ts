@@ -17,11 +17,22 @@ interface OverlayConfig {
   pollIntervalMs: number;
   thresholds: TireThresholds;
   radarEnabled: boolean;
+  tiresEnabled: boolean;
   radarScale: number;
   radarOpacity: number;
   radarRange: number;
   radarCarWidth: number;
   radarCarHeight: number;
+  standingsEnabled: boolean;
+  standingsOpacity: number;
+  standingsShowFlags: boolean;
+  standingsShowCarNumber: boolean;
+  standingsShowMake: boolean;
+  standingsShowIRating: boolean;
+  standingsShowSafetyRating: boolean;
+  standingsShowBestLap: boolean;
+  standingsShowLastLap: boolean;
+  standingsShowIncidents: boolean;
 }
 
 interface LauncherAPI {
@@ -35,9 +46,14 @@ interface LauncherAPI {
   stopRadar: () => Promise<void>;
   isRadarRunning: () => Promise<boolean>;
   onRadarStatus: (cb: (running: boolean) => void) => void;
+  startStandings: () => Promise<void>;
+  stopStandings: () => Promise<void>;
+  isStandingsRunning: () => Promise<boolean>;
+  onStandingsStatus: (cb: (running: boolean) => void) => void;
   minimizeWindow: () => void;
   closeWindow: () => void;
   openAbout: () => void;
+  resizeLauncher: (w: number, h: number) => void;
 }
 
 interface Window {
@@ -66,8 +82,8 @@ const thInputs = {
   hotRedMin:     document.getElementById('th-hotRedMin') as HTMLInputElement,
 };
 
-const setRadarEnabled      = document.getElementById('set-radar-enabled') as HTMLInputElement;
-const setRadarEnabledRadar = document.getElementById('set-radar-enabled-radar') as HTMLInputElement;
+const setRadarEnabled      = document.getElementById('set-radar-enabled-radar') as HTMLInputElement;
+const setTiresEnabled      = document.getElementById('set-tires-enabled') as HTMLInputElement;
 const setRadarRange        = document.getElementById('set-radar-range') as HTMLInputElement;
 const valRadarRange        = document.getElementById('val-radar-range')!;
 const setRadarScale        = document.getElementById('set-radar-scale') as HTMLInputElement;
@@ -79,9 +95,23 @@ const valCarWidth          = document.getElementById('val-car-width')!;
 const setCarHeight         = document.getElementById('set-car-height') as HTMLInputElement;
 const valCarHeight         = document.getElementById('val-car-height')!;
 
+// Standings controls
+const setStandingsEnabled  = document.getElementById('set-standings-enabled')  as HTMLInputElement;
+const setStandingsOpacity  = document.getElementById('set-standings-opacity')  as HTMLInputElement;
+const valStandingsOpacity  = document.getElementById('val-standings-opacity')!;
+const setColFlags          = document.getElementById('set-col-flags')          as HTMLInputElement;
+const setColCar            = document.getElementById('set-col-car')            as HTMLInputElement;
+const setColMake           = document.getElementById('set-col-make')           as HTMLInputElement;
+const setColIRating        = document.getElementById('set-col-irating')        as HTMLInputElement;
+const setColSafety         = document.getElementById('set-col-safety')         as HTMLInputElement;
+const setColBest           = document.getElementById('set-col-best')           as HTMLInputElement;
+const setColLast           = document.getElementById('set-col-last')           as HTMLInputElement;
+const setColIncidents      = document.getElementById('set-col-incidents')      as HTMLInputElement;
+
 const btnSaveGeneral = document.getElementById('btn-save-general')!;
 const btnSaveTires   = document.getElementById('btn-save-tires')!;
 const btnSaveRadar   = document.getElementById('btn-save-radar')!;
+const btnSaveStandings = document.getElementById('btn-save-standings')!;
 const btnAbout       = document.getElementById('btn-about')!;
 const saveStatus     = document.getElementById('save-status')!;
 
@@ -90,10 +120,7 @@ const btnClose = document.getElementById('btn-close')!;
 
 // ── Sync both "Enable Radar" checkboxes ──────────────────────────────────────
 setRadarEnabled.addEventListener('change', () => {
-  setRadarEnabledRadar.checked = setRadarEnabled.checked;
-});
-setRadarEnabledRadar.addEventListener('change', () => {
-  setRadarEnabled.checked = setRadarEnabledRadar.checked;
+  // nothing to sync: Radar tab has its own checkbox, Tires tab has its own
 });
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
@@ -104,6 +131,14 @@ document.querySelectorAll('.tab').forEach((tab) => {
     tab.classList.add('active');
     const panelId = 'panel-' + (tab as HTMLElement).dataset.tab;
     document.getElementById(panelId)?.classList.add('active');
+    const tabName = (tab as HTMLElement).dataset.tab;
+    if (tabName === 'coach') {
+      document.body.classList.add('coach-mode');
+      window.launcherAPI.resizeLauncher(760, 820);
+    } else {
+      document.body.classList.remove('coach-mode');
+      window.launcherAPI.resizeLauncher(420, 700);
+    }
   });
 });
 
@@ -136,6 +171,10 @@ function updateToggleUI(running: boolean): void {
   updateToggleUI(running);
 
   window.launcherAPI.onOverlayStatus((r) => updateToggleUI(r));
+
+  window.launcherAPI.onStandingsStatus((_r) => {
+    // standings window status feedback — reserved for future UI indicator
+  });
 })();
 
 // ── Start / Stop ─────────────────────────────────────────────────────────────
@@ -163,11 +202,22 @@ function collectConfig(): OverlayConfig {
       hotRedMin:     parseInt(thInputs.hotRedMin.value, 10),
     },
     radarEnabled: setRadarEnabled.checked,
+    tiresEnabled: setTiresEnabled.checked,
     radarScale: parseFloat(setRadarScale.value),
     radarOpacity: parseFloat(setRadarOpacity.value),
     radarRange: parseInt(setRadarRange.value, 10),
     radarCarWidth: parseInt(setCarWidth.value, 10),
     radarCarHeight: parseInt(setCarHeight.value, 10),
+    standingsEnabled: setStandingsEnabled.checked,
+    standingsOpacity: parseFloat(setStandingsOpacity.value),
+    standingsShowFlags:         setColFlags.checked,
+    standingsShowCarNumber:     setColCar.checked,
+    standingsShowMake:          setColMake.checked,
+    standingsShowIRating:       setColIRating.checked,
+    standingsShowSafetyRating:  setColSafety.checked,
+    standingsShowBestLap:       setColBest.checked,
+    standingsShowLastLap:       setColLast.checked,
+    standingsShowIncidents:     setColIncidents.checked,
   } as OverlayConfig;
 }
 
@@ -183,6 +233,7 @@ async function saveAndFlash(statusEl: HTMLElement): Promise<void> {
 btnSaveGeneral.addEventListener('click', () => saveAndFlash(saveStatus));
 btnSaveTires.addEventListener('click', () => saveAndFlash(document.getElementById('save-status-tires')!));
 btnSaveRadar.addEventListener('click', () => saveAndFlash(document.getElementById('save-status-radar')!));
+btnSaveStandings.addEventListener('click', () => saveAndFlash(document.getElementById('save-status-standings')!));
 
 // ── About / FAQ ──────────────────────────────────────────────────────────────
 btnAbout.addEventListener('click', () => {
@@ -201,6 +252,7 @@ setRadarScale.addEventListener('input', () => { valRadarScale.textContent = setR
 setRadarOpacity.addEventListener('input', () => { valRadarOpacity.textContent = setRadarOpacity.value; });
 setCarWidth.addEventListener('input', () => { valCarWidth.textContent = setCarWidth.value; });
 setCarHeight.addEventListener('input', () => { valCarHeight.textContent = setCarHeight.value; });
+setStandingsOpacity.addEventListener('input', () => { valStandingsOpacity.textContent = setStandingsOpacity.value; });
 
 // ── Apply config to UI ──────────────────────────────────────────────────────
 function applyConfigToUI(cfg: OverlayConfig): void {
@@ -217,8 +269,8 @@ function applyConfigToUI(cfg: OverlayConfig): void {
   thInputs.hotYellowMin.value  = String(cfg.thresholds.hotYellowMin);
   thInputs.hotRedMin.value     = String(cfg.thresholds.hotRedMin);
 
+  setTiresEnabled.checked      = cfg.tiresEnabled ?? true;
   setRadarEnabled.checked      = cfg.radarEnabled;
-  setRadarEnabledRadar.checked = cfg.radarEnabled;
   setRadarRange.value          = String(cfg.radarRange);
   valRadarRange.textContent    = String(cfg.radarRange);
   setRadarScale.value          = String(cfg.radarScale);
@@ -229,6 +281,18 @@ function applyConfigToUI(cfg: OverlayConfig): void {
   valCarWidth.textContent      = String(cfg.radarCarWidth);
   setCarHeight.value           = String(cfg.radarCarHeight);
   valCarHeight.textContent     = String(cfg.radarCarHeight);
+
+  setStandingsEnabled.checked      = cfg.standingsEnabled ?? false;
+  setStandingsOpacity.value        = String(cfg.standingsOpacity ?? 0.9);
+  valStandingsOpacity.textContent  = String(cfg.standingsOpacity ?? 0.9);
+  setColFlags.checked              = cfg.standingsShowFlags ?? true;
+  setColCar.checked                = cfg.standingsShowCarNumber ?? true;
+  setColMake.checked               = cfg.standingsShowMake ?? false;
+  setColIRating.checked            = cfg.standingsShowIRating ?? false;
+  setColSafety.checked             = cfg.standingsShowSafetyRating ?? false;
+  setColBest.checked               = cfg.standingsShowBestLap ?? true;
+  setColLast.checked               = cfg.standingsShowLastLap ?? true;
+  setColIncidents.checked          = cfg.standingsShowIncidents ?? true;
 }
 
 })();

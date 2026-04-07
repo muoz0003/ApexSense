@@ -1,0 +1,336 @@
+/* ── Standings overlay ───────────────────────────────────────────────────────
+   Dark, semi-transparent panel that floats above iRacing.
+   Matches the ApexSense colour palette from radarStyles.css / coach.css.
+────────────────────────────────────────────────────────────────────────────── */
+
+/* ── Root reset ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           rgba(8, 10, 14, 0.96);
+  --bg-solid:     #08090d;
+  --border:       rgba(255,255,255,0.07);
+  --text:         #e0e0e0;
+  --text-muted:   #777777;
+  --green:        #4db870;
+  --yellow:       #f5c700;
+  --red:          #d04050;
+  --orange:       #f07830;
+  --drag-bg:      rgba(4, 5, 8, 0.99);
+  --drag-border:  rgba(255,255,255,0.07);
+  --player-row:   rgba(245, 199, 0, 0.10);
+  --radius:       2px;
+  --font:         'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font);
+  color: var(--text);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* ── Outer wrapper ────────────────────────────────────────────────────────── */
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* ── Drag bar ─────────────────────────────────────────────────────────────── */
+#drag-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--drag-bg);
+  border-bottom: 1px solid var(--drag-border);
+  -webkit-app-region: drag;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+#drag-bar .title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+
+#session-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-left: auto;
+}
+
+/* ── Column toggle toolbar ────────────────────────────────────────────────── */
+#col-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+}
+
+.col-toggle {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  -webkit-app-region: no-drag;
+}
+
+.col-toggle:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+.col-toggle input[type="checkbox"] {
+  display: none; /* checkbox hidden — label itself acts as the toggle */
+}
+
+/* Active (checked) state: highlight the label */
+.col-toggle:has(input:checked) {
+  background: rgba(245, 199, 0, 0.12);
+  color: var(--yellow);
+}
+
+/* ── Table wrapper (scrollable) ───────────────────────────────────────────── */
+#table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
+  -webkit-app-region: no-drag;
+}
+
+#table-wrap::-webkit-scrollbar        { width: 4px; }
+#table-wrap::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.15); border-radius: 2px; }
+#table-wrap::-webkit-scrollbar-track  { background: transparent; }
+
+/* ── Status message ───────────────────────────────────────────────────────── */
+#status-message {
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+#status-message.hidden { display: none; }
+
+/* ── Standings table ──────────────────────────────────────────────────────── */
+#standings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#standings-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--yellow);
+  padding: 5px 6px 4px;
+  border-bottom: 1px solid rgba(245, 199, 0, 0.20);
+  text-align: left;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: var(--bg-solid);
+  z-index: 1;
+}
+
+#standings-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+#standings-table tr.is-player td {
+  background: var(--player-row);
+}
+
+#standings-table tr.is-player .col-driver {
+  font-weight: 700;
+  color: var(--yellow);
+}
+
+/* ── Per-column alignments ────────────────────────────────────────────────── */
+.col-pos    { width: 28px; text-align: center; font-weight: 700; color: var(--yellow); font-size: 13px; }
+.col-flag   { width: 26px; text-align: center; }
+.col-car    { width: 34px; text-align: center; color: var(--text-muted); font-size: 11px; }
+.col-make   { min-width: 60px; text-align: left; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.col-irating { width: 48px; text-align: right; color: var(--yellow); font-size: 11px; font-variant-numeric: tabular-nums; }
+.col-safety { width: 48px; text-align: center; font-size: 11px; font-weight: 600; }
+.col-best   { width: 66px; text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; }
+.col-last   { width: 66px; text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--text-muted); }
+.col-driver { min-width: 100px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.col-inc    { width: 40px; text-align: center; }
+
+/* Car brand logo inside col-make */
+.car-brand-logo {
+  height: 14px;
+  width: auto;
+  max-width: 28px;
+  object-fit: contain;
+  margin-right: 4px;
+  vertical-align: middle;
+  opacity: 0.9;
+}
+
+/* ── Position delta badge ─────────────────────────────────────────────────── */
+.pos-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 1;
+}
+.pos-delta {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.pos-delta.up   { color: var(--green);  }
+.pos-delta.down { color: var(--red);    }
+.pos-delta.same { display: none;        }
+
+/* ── Position-change row animations ──────────────────────────────────────── */
+
+/* Pop-up: gained places (moved toward P1) */
+@keyframes row-pop-up {
+  0%   { transform: translateY(6px) scale(0.97); opacity: 0.5; background: rgba(90, 200, 120, 0); }
+  25%  { transform: translateY(-3px) scale(1.02); opacity: 1;   background: rgba(90, 200, 120, 0.22); }
+  60%  { transform: translateY(1px) scale(1.005); background: rgba(90, 200, 120, 0.12); }
+  100% { transform: translateY(0) scale(1);      opacity: 1;   background: rgba(90, 200, 120, 0); }
+}
+
+/* Pop-down: lost places */
+@keyframes row-pop-down {
+  0%   { transform: translateY(-6px) scale(0.97); opacity: 0.5; background: rgba(224, 80, 96, 0); }
+  25%  { transform: translateY(3px) scale(1.02);  opacity: 1;   background: rgba(224, 80, 96, 0.22); }
+  60%  { transform: translateY(-1px) scale(1.005); background: rgba(224, 80, 96, 0.12); }
+  100% { transform: translateY(0) scale(1);       opacity: 1;   background: rgba(224, 80, 96, 0); }
+}
+
+/* On initial appearance, fade in gently */
+@keyframes row-appear {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+tr[data-moved="up"]   { animation: row-pop-up   0.65s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+tr[data-moved="down"] { animation: row-pop-down 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+tr[data-moved="new"]  { animation: row-appear   0.4s ease-out forwards; }
+
+/* Ensure position cell doesn't clip the animation */
+#standings-table tbody tr {
+  will-change: transform, opacity;
+}
+
+/* ── Incident / aggression badge ──────────────────────────────────────────── */
+.inc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* 0 incidents — nothing shown (badge hidden) */
+.inc-0       { display: none; }
+
+/* 1–2 incidents — minor, yellow */
+.inc-low {
+  color: var(--yellow);
+  background: rgba(240, 192, 64, 0.14);
+}
+
+/* 3–5 incidents — caution, orange */
+.inc-med {
+  color: var(--orange);
+  background: rgba(240, 120, 48, 0.16);
+}
+
+/* 6+ incidents — aggressive, red */
+.inc-high {
+  color: var(--red);
+  background: rgba(224, 80, 96, 0.18);
+}
+
+/* Row-level aggression tint (dangerous drivers) */
+tr.aggr-med td  { background-image: linear-gradient(90deg, rgba(240,120,48,0.04) 0%, transparent 60%); }
+tr.aggr-high td { background-image: linear-gradient(90deg, rgba(224,80,96,0.07) 0%, transparent 60%); }
+
+/* player row must override aggr tints */
+tr.is-player.aggr-med td,
+tr.is-player.aggr-high td {
+  background: var(--player-row);
+}
+
+/* Safety rating licence colours */
+.lic-r { color: #e05060; }
+.lic-d { color: #f08040; }
+.lic-c { color: #f0c040; }
+.lic-b { color: #7ec8e8; }
+.lic-a { color: #5ac878; }
+.lic-p { color: #c090e8; }
+
+/* Flag image */
+.standings-flag {
+  height: 12px;
+  width: auto;
+  border-radius: 2px;
+  opacity: 0.85;
+  vertical-align: middle;
+}
+
+/* Hidden utility */
+.hidden { display: none !important; }
+
+/* ── Thin scrollbar for the toolbar when very narrow ─────────────────────── */
+#col-toolbar::-webkit-scrollbar { height: 0; }
+
+/* ── Multi-class separator header rows ───────────────────────────────────── */
+tr.class-header-row td {
+  background: #1a1b22;
+  color: #f5c700;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 8px 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(245, 199, 0, 0.22);
+  border-bottom: 1px solid rgba(245, 199, 0, 0.12);
+}
+
+.class-color-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+

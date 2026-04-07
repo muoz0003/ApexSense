@@ -1,182 +1,278 @@
-/* ─── Global ──────────────────────────────────────────────────────────────── */
-* {
+/* ── Tire overlay ─────────────────────────────────────────────────────────────
+   Matches the ApexSense standings colour palette exactly.
+   Dark near-black panel · yellow accents · Segoe UI · sharp 2 px radius.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Root reset ──────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
+:root {
+  --bg:          rgba(8, 10, 14, 0.96);
+  --bg-block:    rgba(255,255,255,0.038);
+  --bg-zone:     rgba(255,255,255,0.025);
+  --border:      rgba(255,255,255,0.07);
+  --text:        #e0e0e0;
+  --text-muted:  #666666;
+  --yellow:      #f5c700;
+  --drag-bg:     rgba(4, 5, 8, 0.99);
+  --drag-border: rgba(255,255,255,0.07);
+  --radius:      2px;
+  --font:        'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ── Outer wrapper ────────────────────────────────────────────────────────── */
 html, body {
-  background: transparent;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
-  color: #dddddf;
+  background: transparent;
+  font-family: var(--font);
+  color: var(--text);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
   user-select: none;
 }
 
 body {
-  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ─── Drag Bar ────────────────────────────────────────────────────────────── */
+/* All visual chrome lives here so body stays transparent below the content */
+#overlay-wrap {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ── Drag Bar ─────────────────────────────────────────────────────────────── */
 #drag-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 36px;
-  background: #222330;
-  border-radius: 10px 10px 0 0;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--drag-bg);
+  border-bottom: 1px solid var(--drag-border);
   -webkit-app-region: drag;
   cursor: grab;
+  flex-shrink: 0;
 }
 
 #drag-bar .title {
-  font-size: 14px;
-  font-weight: 400;
-  color: #888;
-  letter-spacing: 0.5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yellow);
 }
 
-#drag-bar .title strong {
-  font-weight: 800;
-  font-style: italic;
-  color: #bbbbbd;
-  font-size: 16px;
-}
-
-/* ─── Move Mode ───────────────────────────────────────────────────────────── */
+/* ── Move Mode ────────────────────────────────────────────────────────────── */
 body.move-mode #drag-bar {
-  border: 2px dashed rgba(255, 255, 255, 0.25);
-  border-bottom: none;
+  border-bottom: 1px dashed rgba(255,255,255,0.18);
 }
 
-body.move-mode #tire-container {
-  border: 2px dashed rgba(255, 255, 255, 0.25);
-  border-top: none;
+body.move-mode #overlay-wrap {
+  outline: 1px dashed rgba(255,255,255,0.10);
+  outline-offset: -2px;
 }
 
-/* ─── Tire Container ──────────────────────────────────────────────────────── */
+/* ── Tire Container ───────────────────────────────────────────────────────── */
 #tire-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px 14px;
-  background: #222330;
-  border-radius: 0 0 10px 10px;
+  gap: 4px;
+  padding: 8px 8px 10px;
 }
 
+/* ── Axle rows (front / rear) ────────────────────────────────────────────── */
 .tire-row {
   display: flex;
-  gap: 8px;
+  gap: 5px;
 }
 
+/* ── Chassis divider between front and rear ──────────────────────────────── */
+#chassis-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1px 6px;
+}
+
+#chassis-bar::before,
+#chassis-bar::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.055);
+}
+
+#chassis-bar span {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(245,199,0,0.22);
+}
+
+/* ── Individual Tire Block ────────────────────────────────────────────────── */
+/*
+   Mimics a tyre cross-section viewed from above:
+   ┌─────────────────────────────────────────┐  ← accent stripe (yellow gradient)
+   │ LABEL                                   │
+   │  ┌─────┐  ┌─────────┐  ┌─────┐         │
+   │  │  O  │  │    M    │  │  I  │         │  ← O/M/I tread zones
+   │  │ 75° │  │  78°    │  │ 72° │         │
+   │  │ 88% │  │  88%    │  │ 88% │         │
+   │  └─────┘  └─────────┘  └─────┘         │
+   │  154 kPa                                │
+   └─────────────────────────────────────────┘
+*/
 .tire-block {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 10px 8px 10px;
-  border-radius: 10px;
-  background: #2a2a38;
-  min-width: 180px;
+  align-items: stretch;
+  padding: 7px 7px 7px;
+  border-radius: var(--radius);
+  background: var(--bg-block);
+  border: 1px solid var(--border);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
 }
 
+/* Decorative top accent stripe — mirrors class-header-row gradient */
+.tire-block::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245,199,0,0.45) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Tire Label ───────────────────────────────────────────────────────────── */
 .tire-label {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: #dddddf;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  padding-top: 4px; /* clear the accent stripe */
 }
 
-/* ─── 3-Zone Temperature Grid ─────────────────────────────────────────────── */
+/* ── 3-Zone Temperature Grid ──────────────────────────────────────────────── */
 .tire-zones {
   display: flex;
-  gap: 6px;
+  gap: 3px;
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
+/* Each zone = outer / middle / inner tread contact patch */
 .zone-cell {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 12px 4px 8px;
-  border-radius: 8px;
-  background: #16231f;
+  justify-content: flex-start;
+  padding: 5px 3px 6px;
+  border-radius: var(--radius);
+  background: var(--bg-zone);
+  border: 1px solid rgba(255,255,255,0.04);
   transition: background 0.4s ease;
+  position: relative;
+  min-width: 0;
 }
 
-.zone-temp {
-  font-size: 22px;
+/* Zone identifier: O · M · I */
+.zone-cell::before {
+  display: block;
+  font-size: 7px;
   font-weight: 700;
-  color: #dddddf;
-  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.28);
+  margin-bottom: 3px;
+  line-height: 1;
+}
+.zone-cell[data-zone="outside"]::before { content: "O"; }
+.zone-cell[data-zone="middle"]::before  { content: "M"; }
+.zone-cell[data-zone="inside"]::before  { content: "I"; }
+
+.zone-temp {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.05;
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .zone-wear {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(221, 221, 223, 0.6);
-  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #4a4a4a;
+  margin-top: 3px;
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
-/* ─── Pressure ────────────────────────────────────────────────────────────── */
+/* ── Pressure ─────────────────────────────────────────────────────────────── */
 .tire-pressure {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 9px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: rgba(221, 221, 223, 0.5);
-  margin-top: 2px;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.04em;
 }
 
-/* ─── Status Message ──────────────────────────────────────────────────────── */
+/* ── Status Message ───────────────────────────────────────────────────────── */
 #status-message {
   text-align: center;
-  padding: 20px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: rgba(221, 221, 223, 0.3);
-  background: #222330;
-  border-radius: 0 0 10px 10px;
+  padding: 20px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
 }
+#status-message.hidden { display: none; }
 
-/* ─── Estimate Banner ─────────────────────────────────────────────────────── */
+/* ── Estimate Banner ──────────────────────────────────────────────────────── */
 #estimate-banner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 8px 12px 10px;
-  background: #222330;
-  border-radius: 0 0 10px 10px;
+  padding: 5px 12px 7px;
+  border-top: 1px solid var(--border);
 }
 
 #estimate-banner .estimate-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(221, 221, 223, 0.5);
+  color: rgba(245,199,0,0.45);
 }
 
 #estimate-banner .estimate-subtitle {
-  font-size: 10px;
-  font-weight: 400;
-  color: rgba(221, 221, 223, 0.28);
+  font-size: 9px;
+  color: var(--text-muted);
 }
 
-#tire-container.no-bottom-radius {
-  border-radius: 0;
-  padding-bottom: 8px;
-}
+#tire-container.no-bottom-radius { border-radius: 0; }
 
-/* ─── Utility ─────────────────────────────────────────────────────────────── */
-.hidden {
-  display: none !important;
-}
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }

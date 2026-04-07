@@ -39,6 +39,8 @@ export interface OverlayConfig {
   // ─── Radar ────────────────────────────────────────────────────────────────
   /** Show the proximity radar overlay */
   radarEnabled: boolean;
+  /** Show the tires overlay window */
+  tiresEnabled: boolean;
   /** Scale multiplier for the radar window (1 = 100%) */
   radarScale: number;
   /** Radar window opacity 0.0–1.0 */
@@ -50,11 +52,30 @@ export interface OverlayConfig {
   /** Height of each car rectangle on the radar (pixels) */
   radarCarHeight: number;
 
+  // ─── Standings overlay ────────────────────────────────────────────────
+  /** Show the standings overlay window */
+  standingsEnabled: boolean;
+  /** Standings window opacity 0.0–1.0 */
+  standingsOpacity: number;
+  /** Column visibility toggles */
+  standingsShowFlags: boolean;
+  standingsShowCarNumber: boolean;
+  standingsShowMake: boolean;
+  standingsShowIRating: boolean;
+  standingsShowSafetyRating: boolean;
+  standingsShowBestLap: boolean;
+  standingsShowLastLap: boolean;
+  standingsShowIncidents: boolean;
+
   // ─── Window positions (persisted) ───────────────────────────────────────
   /** Saved overlay window position [x, y] */
   overlayPosition?: [number, number];
   /** Saved radar window position [x, y] */
   radarPosition?: [number, number];
+  /** Saved standings window position [x, y] */
+  standingsPosition?: [number, number];
+  /** Saved standings window size [w, h] */
+  standingsSize?: [number, number];
 }
 
 // ─── DEFAULT CONFIG ───────────────────────────────────────────────────────────
@@ -76,9 +97,20 @@ export const defaultConfig: OverlayConfig = {
 
   // ─── Radar defaults ─────────────────────────────────────────────────────
   radarEnabled: true,
+  tiresEnabled: true,
   radarScale: 1.0,
   radarOpacity: 0.9,
   radarRange: 40,        // show cars within ±40 metres
   radarCarWidth: 12,
   radarCarHeight: 28,
-};
+  // ─── Standings defaults ────────────────────────────────────────────────────────
+  standingsEnabled: false,
+  standingsOpacity: 0.9,
+  standingsShowFlags: true,
+  standingsShowCarNumber: true,
+  standingsShowMake: true,
+  standingsShowIRating: false,
+  standingsShowSafetyRating: false,
+  standingsShowBestLap: true,
+  standingsShowLastLap: true,
+  standingsShowIncidents: true,};

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexSense – Live Standings</title>
+  <link rel="stylesheet" href="standingsStyles.css" />
+  <script>
+    window.onerror = function(msg, src, line, col, err) {
+      var d = document.createElement('div');
+      d.style.cssText = 'color:#f55;background:#111;padding:8px;font-size:11px;word-break:break-all;position:fixed;top:0;left:0;right:0;z-index:9999';
+      d.textContent = (err ? err.message : msg) + ' @ line ' + line;
+      document.body.appendChild(d);
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      var d = document.createElement('div');
+      d.style.cssText = 'color:#f55;background:#111;padding:8px;font-size:11px;word-break:break-all;position:fixed;top:40px;left:0;right:0;z-index:9999';
+      d.textContent = 'Promise: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+      document.body.appendChild(d);
+    });
+  </script>
+</head>
+<body>
+  <!-- Drag handle — only visible when overlay is unlocked -->
+  <div id="drag-bar">
+    <span class="title">STANDINGS</span>
+    <span id="session-label"></span>
+  </div>
+
+  <!-- Column-toggle toolbar -->
+  <div id="col-toolbar">
+    <label class="col-toggle" title="Country Flags">
+      <input type="checkbox" id="tog-flags" checked /> Fl
+    </label>
+    <label class="col-toggle" title="Car Number">
+      <input type="checkbox" id="tog-car" checked /> #
+    </label>
+    <label class="col-toggle" title="Car Model">
+      <input type="checkbox" id="tog-make" checked /> Car
+    </label>
+    <label class="col-toggle" title="iRating">
+      <input type="checkbox" id="tog-irating" /> iR
+    </label>
+    <label class="col-toggle" title="Safety Rating">
+      <input type="checkbox" id="tog-safety" /> SR
+    </label>
+    <label class="col-toggle" title="Best Lap">
+      <input type="checkbox" id="tog-best" checked /> Best
+    </label>
+    <label class="col-toggle" title="Last Lap">
+      <input type="checkbox" id="tog-last" checked /> Last
+    </label>
+    <label class="col-toggle" title="Incidents / Aggression">
+      <input type="checkbox" id="tog-incidents" checked /> Inc
+    </label>
+  </div>
+
+  <!-- Standings table -->
+  <div id="table-wrap">
+    <div id="status-message" class="hidden">Waiting for iRacing…</div>
+    <table id="standings-table">
+      <thead id="standings-thead"></thead>
+      <tbody id="standings-tbody"></tbody>
+    </table>
+  </div>
+
+  <script src="../../dist/renderer/standingsRenderer.js"></script>
+</body>
+</html>

@@ -55,16 +55,83 @@ interface RadarSnapshot {
   trackLengthM: number;
 }
 
+interface DrivingData {
+  throttle: number;
+  brake: number;
+  steeringAngle: number;
+  speed: number;
+  latAccel: number;
+  longAccel: number;
+  gear: number;
+  rpm: number;
+  lapDistPct: number;
+  onPitRoad: boolean;
+  lapCurrentTime: number;
+  lapLastTime: number;
+  lapBestTime: number;
+}
+
+interface SessionInfo {
+  carName: string;
+  carPath: string;
+  trackName: string;
+  trackConfig: string;
+  sessionType: string;
+  playerClub: string;
+}
+
+interface DriverRosterEntry {
+  carIdx: number;
+  userName: string;
+  carNumber: string;
+  flairName: string;
+  iRating: number;
+  licString: string;
+  incidents: number;
+  carMake: string;
+  carClassId: number;
+  carClassName: string;
+  carClassColor: number;
+}
+
+interface StandingEntry {
+  carIdx: number;
+  position: number;
+  userName: string;
+  carNumber: string;
+  flairName: string;
+  iRating: number;
+  licString: string;
+  lap: number;
+  bestLapTime: number;
+  lastLapTime: number;
+  incidents: number;
+  carMake: string;
+  carClassId: number;
+  carClassName: string;
+  carClassColor: number;
+  isPlayer: boolean;
+}
+
 interface TelemetrySnapshot {
   connected: boolean;
   tires: TireData[];
   radar: RadarSnapshot;
+  driving: DrivingData | null;
+  session: SessionInfo | null;
+  weather: { airTempC: number; trackTempC: number } | null;
+  standings: StandingEntry[];
 }
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let sdk: IRacingSDK | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let cachedTrackLengthM = 0;
+let cachedSessionInfo: SessionInfo | null = null;
+let sessionInfoResolved = false;
+let driverRoster: DriverRosterEntry[] = [];
+let rosterPollCounter = 0;
+const ROSTER_REFRESH_INTERVAL = 30; // re-read session YAML every N polls
 
 const emptyRadar: RadarSnapshot = {
   connected: false, playerSpeed: 0, carLeftRight: 0, nearbyCars: [], trackLengthM: 0,
@@ -201,6 +268,137 @@ function initTireEstState(): TireEstState {
   };
 }
 
+function readSessionInfo(sdkInst: IRacingSDK): SessionInfo | null {
+  if (sessionInfoResolved && cachedSessionInfo) return cachedSessionInfo;
+  try {
+    const session = (sdkInst as any).getSessionData?.();
+    const weekendInfo = session?.WeekendInfo;
+    const driverInfo = session?.DriverInfo;
+    const sessionInfo = session?.SessionInfo;
+
+    const trackName   = weekendInfo?.TrackDisplayName || weekendInfo?.TrackName || '';
+    const trackConfig = weekendInfo?.TrackConfigName  || '';
+
+    const playerIdx = driverInfo?.DriverCarIdx;
+    const drivers: any[] = driverInfo?.Drivers || [];
+    let carName = '';
+    let carPath = '';
+    let playerClub = '';
+    if (playerIdx != null && drivers[playerIdx]) {
+      const p = drivers[playerIdx];
+      carName = p.CarScreenName || p.CarScreenNameShort || '';
+      carPath = p.CarPath || '';
+      playerClub = p.FlairName || '';
+    }
+
+    // Determine current session type from SessionNum
+    let sessionType = 'Practice';
+    const sessions: any[] = sessionInfo?.Sessions || [];
+    if (sessions.length > 0) {
+      const lastSession = sessions[sessions.length - 1];
+      sessionType = lastSession?.SessionType || 'Practice';
+    }
+
+    if (trackName || carName) {
+      const info: SessionInfo = { carName, carPath, trackName, trackConfig, sessionType, playerClub };
+      cachedSessionInfo = info;
+      sessionInfoResolved = true;
+      return info;
+    }
+  } catch {
+    // Session data not yet available
+  }
+  return cachedSessionInfo;
+}
+
+function readDriverRoster(sdkInst: IRacingSDK): void {
+  try {
+    const session = (sdkInst as any).getSessionData?.();
+    const driverInfo = session?.DriverInfo;
+    const drivers: any[] = driverInfo?.Drivers || [];
+
+    driverRoster = drivers
+      .filter((d: any) => !d.CarIsPaceCar && !d.IsSpectator)
+      .map((d: any) => ({
+        carIdx:      d.CarIdx ?? 0,
+        userName:    d.UserName || d.TeamName || 'Driver',
+        carNumber:   String(d.CarNumber ?? ''),
+        flairName:   d.FlairName || '',
+        iRating:     typeof d.IRating === 'number' ? d.IRating : 0,
+        licString:   d.LicString || '',
+        incidents:   typeof d.CurDriverIncidentCount === 'number' ? d.CurDriverIncidentCount : 0,
+        carMake:     d.CarScreenNameShort || d.CarScreenName || '',
+        carClassId:    typeof d.CarClassID === 'number' ? d.CarClassID : 0,
+        carClassName:  d.CarClassShortName || '',
+        carClassColor: typeof d.CarClassColor === 'number' ? d.CarClassColor : 0xFFFFFF,
+      }));
+  } catch {
+    // Session data not yet available
+  }
+}
+
+function readStandings(telemetry: Record<string, any>, playerIdx: number): StandingEntry[] {
+  if (driverRoster.length === 0) return [];
+
+  const positions = readArray(telemetry['CarIdxPosition']);
+  const laps      = readArray(telemetry['CarIdxLap']);
+  const bestTimes = readArray(telemetry['CarIdxBestLapTime']);
+  const lastTimes = readArray(telemetry['CarIdxLastLapTime']);
+
+  const entries: StandingEntry[] = [];
+
+  for (const driver of driverRoster) {
+    const idx = driver.carIdx;
+    const position    = positions ? (positions[idx] as number ?? 0) : 0;
+    const lap         = laps      ? (laps[idx] as number ?? 0) : 0;
+    const bestLapTime = bestTimes ? Math.max(0, bestTimes[idx] as number ?? 0) : 0;
+    const lastLapTime = lastTimes ? Math.max(0, lastTimes[idx] as number ?? 0) : 0;
+
+    entries.push({
+      carIdx: idx,
+      position,
+      userName:    driver.userName,
+      carNumber:   driver.carNumber,
+      flairName:   driver.flairName,
+      iRating:     driver.iRating,
+      licString:   driver.licString,
+      lap,
+      bestLapTime,
+      lastLapTime,
+      incidents:   driver.incidents,
+      carMake:     driver.carMake,
+      carClassId:  driver.carClassId,
+      carClassName: driver.carClassName,
+      carClassColor: driver.carClassColor,
+      isPlayer: idx === playerIdx,
+    });
+  }
+
+  // If all positions are 0 (practice/qualifying), rank by best lap time instead.
+  // Drivers with no lap time go to the end.
+  const allZeroPos = entries.every(e => e.position === 0);
+  if (allZeroPos) {
+    entries.sort((a, b) => {
+      const aT = a.bestLapTime > 0 ? a.bestLapTime : Infinity;
+      const bT = b.bestLapTime > 0 ? b.bestLapTime : Infinity;
+      if (aT !== bT) return aT - bT;
+      return a.carIdx - b.carIdx;
+    });
+    // Assign synthetic position numbers
+    entries.forEach((e, i) => { e.position = e.bestLapTime > 0 ? i + 1 : 0; });
+  } else {
+    // Sort by position (0 = unknown → push to end), then by car index as tiebreak
+    entries.sort((a, b) => {
+      if (a.position === 0 && b.position === 0) return a.carIdx - b.carIdx;
+      if (a.position === 0) return 1;
+      if (b.position === 0) return -1;
+      return a.position - b.position;
+    });
+  }
+
+  return entries;
+}
+
 function resetEstimationState(): void {
   for (const key of Object.keys(tireEstStates)) delete tireEstStates[key];
   smoothSpeed = 0;
@@ -209,6 +407,10 @@ function resetEstimationState(): void {
   smoothLatAccel = 0;
   detectedDrivetrain = 'RWD';
   drivetrainDetected = false;
+  cachedSessionInfo = null;
+  sessionInfoResolved = false;
+  driverRoster = [];
+  rosterPollCounter = 0;
 }
 
 function smoothInput(current: number, raw: number, dt: number): number {
@@ -584,6 +786,10 @@ function startPolling(pollIntervalMs: number, radarRange: number): void {
             connected: false,
             tires: [],
             radar: emptyRadar,
+            driving: null,
+            session: null,
+            weather: null,
+            standings: [],
           };
           process.send?.({ type: 'telemetry', snapshot });
         }
@@ -656,11 +862,50 @@ function startPolling(pollIntervalMs: number, radarRange: number): void {
 
       const radar = readRadarData(telemetry, radarRange);
 
+      // ── Driving data ──────────────────────────────────────────────────────
+      const steeringAngle  = readScalar(telemetry['SteeringWheelAngle']);
+      const longAccel      = readScalar(telemetry['LongAccel']);
+      const gear           = readScalar(telemetry['Gear']);
+      const rpm            = readScalar(telemetry['RPM']);
+      const lapDistPct     = readScalar(telemetry['LapDistPct']);
+      const lapCurrentTime = readScalar(telemetry['LapCurrentLapTime']);
+      const lapLastTime    = readScalar(telemetry['LapLastLapTime']);
+      const lapBestTime    = readScalar(telemetry['LapBestLapTime']);
+
+      const driving: DrivingData = {
+        throttle: rawThrottle,
+        brake: rawBrake,
+        steeringAngle,
+        speed: rawSpeed,
+        latAccel: rawLatAccel,
+        longAccel,
+        gear,
+        rpm,
+        lapDistPct,
+        onPitRoad,
+        lapCurrentTime,
+        lapLastTime,
+        lapBestTime,
+      };
+
+      // ── Session info ──────────────────────────────────────────────────────
+      const session = readSessionInfo(sdk!);
+
       if (!wasConnected) {
         console.log('[Worker] iRacing connected');
       }
       wasConnected = true;
-      const snapshot: TelemetrySnapshot = { connected: true, tires, radar };
+
+      // Refresh driver roster periodically (names, club names for flags)
+      rosterPollCounter++;
+      if (rosterPollCounter >= ROSTER_REFRESH_INTERVAL || driverRoster.length === 0) {
+        readDriverRoster(sdk!);
+        rosterPollCounter = 0;
+      }
+
+      const standings = readStandings(telemetry, playerCarIdx);
+
+      const snapshot: TelemetrySnapshot = { connected: true, tires, radar, driving, session, weather: { airTempC: airTemp, trackTempC: trackTemp }, standings };
       process.send?.({ type: 'telemetry', snapshot });
     } catch (err) {
       console.error('[Worker] Poll error:', err);
@@ -670,6 +915,10 @@ function startPolling(pollIntervalMs: number, radarRange: number): void {
           connected: false,
           tires: [],
           radar: emptyRadar,
+          driving: null,
+          session: null,
+          weather: null,
+          standings: [],
         };
         process.send?.({ type: 'telemetry', snapshot });
       }

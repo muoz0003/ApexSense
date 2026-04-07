@@ -222,7 +222,7 @@
       transition: max-height .35s ease, padding .3s ease;
     }
     .faq-item.open .faq-answer {
-      max-height: 300px;
+      max-height: 500px;
     }
     .faq-answer-inner {
       padding: 0 18px 16px;
@@ -395,15 +395,15 @@
     <div class="hero">
       <h1>Apex<span class="accent">Sense</span></h1>
       <div class="subtitle">About / FAQ / Support</div>
-      <p class="intro">A lightweight iRacing overlay built to help drivers monitor tire telemetry and nearby traffic in a clean, easy-to-read interface.</p>
+      <p class="intro">A smart iRacing overlay suite built to help drivers monitor tire telemetry, track nearby traffic, stay on top of race standings, and analyze setup problems — all in one clean, real-time interface.</p>
     </div>
 
     <!-- ─── About ─────────────────────────────────────────────────────────── -->
     <div class="section">
       <div class="section-title">About ApexSense</div>
       <div class="card">
-        <p>ApexSense is a lightweight desktop overlay designed for iRacing. It gives you real-time access to <strong style="color:#dddddf;">live tire temperatures</strong>, <strong style="color:#dddddf;">tire wear</strong>, <strong style="color:#dddddf;">tire pressure</strong>, and a <strong style="color:#dddddf;">proximity radar</strong> that shows nearby cars around you on track.</p>
-        <p style="margin-top:10px;">It's built to be simple, useful, and easy to read while you're racing — no clutter, no learning curve. Just the data you need, right where you need it.</p>
+        <p>ApexSense is a desktop overlay suite designed for iRacing. It gives you real-time access to <strong style="color:#dddddf;">live tire temperatures</strong>, <strong style="color:#dddddf;">tire wear</strong>, <strong style="color:#dddddf;">tire pressure</strong>, a <strong style="color:#dddddf;">proximity radar</strong>, a <strong style="color:#dddddf;">live standings board</strong>, and an AI-assisted <strong style="color:#dddddf;">setup coach</strong> that analyses your lap telemetry and recommends setup changes.</p>
+        <p style="margin-top:10px;">It's built to be simple, useful, and readable while you're racing — no clutter, no learning curve. Just the data you need, right where you need it.</p>
       </div>
     </div>
 
@@ -414,32 +414,32 @@
         <div class="feature-card">
           <span class="icon">◉</span>
           <h3>Live Tire Telemetry</h3>
-          <p>Outside, middle, and inside temperatures for each tire, updated in real time.</p>
+          <p>Outside, middle, and inside temperatures for each tire with wear % and pressure, colour-coded cold→ideal→overheat in real time.</p>
         </div>
         <div class="feature-card">
           <span class="icon">◎</span>
           <h3>Proximity Radar</h3>
-          <p>Top-down radar showing nearby cars with distance-based color coding.</p>
+          <p>Top-down radar showing nearby cars with distance-based colour coding. Configurable range, scale, car dimensions and opacity.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">☰</span>
+          <h3>Live Standings Board</h3>
+          <p>Floating standings overlay showing all drivers with position, country flag, car number, iRating, safety rating, best/last lap times and incident count. Groups cars by class automatically in multi-class races.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">◑</span>
+          <h3>Setup Coach</h3>
+          <p>Record a lap, describe your handling problem, and the coach analyses your telemetry — throttle, brake, tyre temps — then gives targeted suspension, aero and damper recommendations with an exportable setup file.</p>
         </div>
         <div class="feature-card">
           <span class="icon">⚙</span>
           <h3>Adjustable Settings</h3>
-          <p>Scale, opacity, thresholds, polling rate, and car sizes — all customizable.</p>
-        </div>
-        <div class="feature-card">
-          <span class="icon">△</span>
-          <h3>Lightweight Overlay</h3>
-          <p>Runs alongside iRacing with minimal resource usage. No bloat.</p>
-        </div>
-        <div class="feature-card">
-          <span class="icon">▣</span>
-          <h3>Easy-to-Read UI</h3>
-          <p>Clean color-coded zones so you can read tire data at a glance mid-race.</p>
+          <p>Scale, opacity, thresholds, polling rate, column visibility and car sizes — all individually configurable per overlay.</p>
         </div>
         <div class="feature-card">
           <span class="icon">◈</span>
-          <h3>Persistent Settings</h3>
-          <p>Your preferences and window positions are saved automatically between sessions.</p>
+          <h3>Persistent Layout</h3>
+          <p>Window positions and sizes are saved automatically. The standings board is freely resizable. Everything is exactly where you left it next time you launch.</p>
         </div>
       </div>
     </div>
@@ -450,27 +450,37 @@
 
       <div class="faq-item">
         <button class="faq-question">What is ApexSense?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">ApexSense is an independent desktop overlay for iRacing that displays real-time tire telemetry (temperatures, wear, pressure) and a proximity radar showing nearby cars. It runs as a transparent overlay on top of the game.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">ApexSense is an independent desktop overlay suite for iRacing. It includes a live tire telemetry overlay, a proximity radar, a floating standings board, and an AI-assisted setup coach — all running as transparent overlays on top of the game.</div></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">Does ApexSense work while I am driving in iRacing?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Yes — the overlays sit on top of iRacing in real time. They update continuously as you drive, showing live tire data and nearby traffic.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes — all overlays sit on top of iRacing in real time. They update continuously as you drive, showing live tire data, nearby traffic, race standings, and more.</div></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">What tire data does it show?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Each tire shows three temperature zones (outside, middle, inside), average tire wear percentage, and current tire pressure. Each zone is individually color-coded to show operating status at a glance.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Each tire shows three temperature zones (outside, middle, inside), average tire wear percentage, and current tire pressure. Each zone is individually colour-coded cold → warming → ideal → hot → overheat based on thresholds you set in the launcher.</div></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">What does the radar do?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">The radar is a top-down view centered on your car. Nearby cars appear as colored rectangles — red for very close, yellow for caution, green for safe distance. It also integrates with iRacing's spotter to show cars on your left or right.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">The radar is a top-down view centred on your car. Nearby cars appear as coloured rectangles — red for very close (&lt;5 m), yellow for caution (5–15 m), green for safe distance (&gt;15 m). Car dimensions, radar range, scale, and opacity are all adjustable from the Radar tab.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">What does the standings overlay show?<span class="chevron">▼</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">The standings board is a floating, scrollable overlay showing every driver in the session with their position, country flag, car number, car model, iRating, safety rating, best lap, last lap, and incident count. You can toggle individual columns on/off both from the launcher and directly inside the overlay itself. In multi-class races it automatically groups drivers by car class with a coloured class header. The board is freely resizable and its size is remembered between sessions.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How does the Setup Coach work?<span class="chevron">▼</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Open the Coach tab, import your current iRacing setup file (Step 1), select a handling problem like understeer, oversteer, or braking instability (Step 2), then record a lap while driving (Step 3). The coach analyses your throttle, braking, steering, and tyre temperature telemetry and generates specific setup recommendations — spring rates, damper settings, aero balance, tyre pressures — tailored to your car and problem (Step 4). You can then export a modified setup file ready to load in iRacing (Step 5), and review past sessions in History.</div></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">Can I move or resize the overlays?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Yes. When the overlays are unlocked, you can drag them to any position on screen. Scale and opacity are adjustable from the launcher. Car dimensions on the radar can also be customized from the Radar tab.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes. When overlays are unlocked, you can drag each one to any position on screen. The standings board is also resizable. All positions and the standings size are saved automatically between sessions.</div></div>
       </div>
 
       <div class="faq-item">
@@ -485,12 +495,12 @@
 
       <div class="faq-item">
         <button class="faq-question">What is polling interval?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Polling interval controls how often ApexSense refreshes telemetry data. Lower values update more often and feel smoother, but may use slightly more system resources. Higher values update less often and are lighter on performance. The default (200 ms) works well for most setups.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Polling interval controls how often ApexSense refreshes telemetry data from iRacing. Lower values (50–100 ms) update more often and feel smoother but use slightly more CPU. Higher values (200+ ms) are lighter on resources. The default (200 ms) works well for most setups.</div></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">Can I customize temperature thresholds?<span class="chevron">▼</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Yes. The Tires tab in the launcher lets you set four temperature thresholds that control when colors change: cold, warming, hot, and overheating. Adjust them to match the tire compound or car you're driving.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes. The Tires tab in the launcher lets you set four temperature thresholds that control when zone colours change: cold → warming → ideal → hot → overheat. Adjust them to match the tyre compound or car you're driving.</div></div>
       </div>
 
       <div class="faq-item">

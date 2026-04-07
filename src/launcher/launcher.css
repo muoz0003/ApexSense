@@ -9,7 +9,6 @@ html, body {
   background: #222330;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   color: #dddddf;
-  overflow: hidden;
 }
 
 /* ─── Title Bar ───────────────────────────────────────────────────────────── */
@@ -71,7 +70,7 @@ html, body {
 
 /* ─── App Container ───────────────────────────────────────────────────────── */
 #app {
-  padding: 18px 20px 22px;
+  padding: 14px 20px 20px;
 }
 
 /* ─── Status Bar ──────────────────────────────────────────────────────────── */
@@ -79,10 +78,10 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 8px 14px;
   border-radius: 8px;
   background: #2a2a38;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 #status-dot {
@@ -110,7 +109,7 @@ html, body {
 
 /* ─── Primary Button (Start/Stop) ─────────────────────────────────────────── */
 .section {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -152,7 +151,7 @@ html, body {
 #tabs {
   display: flex;
   gap: 2px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   background: #1a1a26;
   border-radius: 10px;
   padding: 3px;
@@ -186,7 +185,7 @@ html, body {
 .tab-panel {
   display: none;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 0;
 }
 
@@ -309,9 +308,9 @@ input[type="checkbox"] {
 
 /* ─── Footer Buttons ──────────────────────────────────────────────────────── */
 .footer-buttons {
-  margin-top: 12px;
-  padding-top: 12px;
-  padding-bottom: 16px;
+  margin-top: 8px;
+  padding-top: 10px;
+  padding-bottom: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
   flex-direction: column;
@@ -355,6 +354,81 @@ input[type="checkbox"] {
 
 .btn-about:hover {
   background: #3a3a4a;
+}
+
+.btn-open-coach {
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e83d3d 0%, #c0392b 100%);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-open-coach:hover { opacity: 0.88; }
+.btn-open-coach:active { transform: scale(0.98); }
+
+/* ─── Record button ───────────────────────────────────────────────────────── */
+.btn-record {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 7px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  background: rgba(90, 200, 120, 0.15);
+  color: #5ac878;
+  border: 1px solid rgba(90, 200, 120, 0.3);
+  white-space: nowrap;
+}
+.btn-record:hover { background: rgba(90, 200, 120, 0.25); }
+
+.btn-record.recording {
+  background: rgba(224, 80, 96, 0.18);
+  color: #e05060;
+  border-color: rgba(224, 80, 96, 0.4);
+  animation: rec-pulse 1.2s ease-in-out infinite;
+}
+.btn-record.recording:hover { background: rgba(224, 80, 96, 0.28); }
+
+@keyframes rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 80, 96, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(224, 80, 96, 0.25); }
+}
+
+/* ─── Coach info panel ────────────────────────────────────────────────────── */
+.coach-info-header {
+  padding: 14px 16px;
+  background: #2a2a38;
+  border-radius: 10px;
+  margin-bottom: 2px;
+}
+
+.coach-info-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #dddddf;
+  margin-bottom: 2px;
+}
+
+.coach-info-sub {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 0.5px;
 }
 
 .save-status {
@@ -428,3 +502,49 @@ input[type="checkbox"] {
 .legend-item .dot.red    { background: #e74c3c; }
 .legend-item .dot.yellow { background: #f1c40f; }
 .legend-item .dot.green  { background: #2ecc71; }
+
+/* ─── Fix: override coach.css globals that conflict with launcher ─────────── */
+/* coach.css sets body { display:flex; height:100vh; overflow:hidden }
+   In normal (non-coach) mode we want plain block flow so the window
+   height is the only boundary — no scroll/clip fighting. */
+body          { display: block; }
+#title-bar    { border-bottom: none; }
+.app-title    { font-style: normal; color: #888; }
+
+/* ─── Coach Mode: layout reflow when Coach tab is active ─────────────────── */
+body.coach-mode {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body.coach-mode #status-bar,
+body.coach-mode #section-toggle {
+  display: none;
+}
+
+body.coach-mode #app {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+body.coach-mode #tabs {
+  padding: 3px 14px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid #35354a;
+}
+
+body.coach-mode #panel-coach.active {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
+}
+

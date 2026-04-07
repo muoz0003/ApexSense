@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexSense – Live Coach</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="coach.css" />
+</head>
+<body>
+
+  <!-- Title bar -->
+  <div id="title-bar">
+    <span class="app-title"><em>ApexSense</em><span class="subtitle">Live Coach</span></span>
+    <div class="window-controls">
+      <button id="btn-minimize" title="Minimize">─</button>
+      <button id="btn-close"    title="Close">✕</button>
+    </div>
+  </div>
+
+  <!-- Session status bar -->
+  <div id="session-bar">
+    <span id="session-dot" class="disconnected"></span>
+    <img id="player-flag" src="" alt="" style="display:none;height:14px;width:auto;border-radius:2px;flex-shrink:0;opacity:0.9;" />
+    <img id="car-logo" src="" alt="" style="display:none;height:28px;width:auto;object-fit:contain;flex-shrink:0;opacity:0.92;" />
+    <div id="session-info">
+      <span id="si-car">Waiting for iRacing…</span>
+      <span id="si-sep" class="sep" style="display:none">·</span>
+      <strong id="si-track"></strong>
+    </div>
+  </div>
+
+  <!-- Main layout -->
+  <div id="layout">
+
+    <!-- Left nav -->
+    <nav id="steps-panel">
+      <button class="step-btn active" data-panel="problem">
+        <span class="step-num">Step 1</span>
+        <span class="step-label">Select Problem</span>
+      </button>
+      <button class="step-btn" data-panel="analyze">
+        <span class="step-num">Step 2</span>
+        <span class="step-label">Analyze Lap</span>
+      </button>
+      <button class="step-btn" data-panel="recommendations">
+        <span class="step-num">Step 3</span>
+        <span class="step-label">Recommendations</span>
+      </button>
+      <button class="step-btn" data-panel="setup">
+        <span class="step-num">Step 4</span>
+        <span class="step-label">Setup Files</span>
+      </button>
+      <button class="step-btn" data-panel="history">
+        <span class="step-num">History</span>
+        <span class="step-label">Past Sessions</span>
+      </button>
+      <button class="step-btn" data-panel="standings">
+        <span class="step-num">Live</span>
+        <span class="step-label">Standings</span>
+      </button>
+    </nav>
+
+    <!-- Content area -->
+    <main id="content">
+
+      <!-- ── Panel: Problem selection ── -->
+      <div class="panel active" id="panel-problem">
+        <p class="section-header">What problem are you experiencing?</p>
+        <div id="problem-grid">
+          <button class="problem-btn" data-problem="understeer_entry">
+            <span class="prob-icon">↗</span>
+            <span class="prob-label">Understeer on Entry</span>
+            <span class="prob-desc">Front pushes wide when turning in</span>
+          </button>
+          <button class="problem-btn" data-problem="oversteer_exit">
+            <span class="prob-icon">↩</span>
+            <span class="prob-label">Snap Oversteer on Exit</span>
+            <span class="prob-desc">Rear steps out under throttle</span>
+          </button>
+          <button class="problem-btn" data-problem="poor_traction">
+            <span class="prob-icon">🔥</span>
+            <span class="prob-label">Poor Traction on Exit</span>
+            <span class="prob-desc">Rear wheels spin at corner exit</span>
+          </button>
+          <button class="problem-btn" data-problem="understeer_mid">
+            <span class="prob-icon">⟳</span>
+            <span class="prob-label">Understeer Mid-Corner</span>
+            <span class="prob-desc">Car won't rotate at the apex</span>
+          </button>
+          <button class="problem-btn" data-problem="oversteer_mid">
+            <span class="prob-icon">↻</span>
+            <span class="prob-label">Oversteer Mid-Corner</span>
+            <span class="prob-desc">Rear slides at the apex</span>
+          </button>
+          <button class="problem-btn" data-problem="braking_instability">
+            <span class="prob-icon">⚠</span>
+            <span class="prob-label">Unstable Under Braking</span>
+            <span class="prob-desc">Car dances or locks up braking</span>
+          </button>
+          <button class="problem-btn" data-problem="bad_topspeed">
+            <span class="prob-icon">→</span>
+            <span class="prob-label">Poor Top Speed</span>
+            <span class="prob-desc">Losing time on straights vs field</span>
+          </button>
+          <button class="problem-btn" data-problem="general_understeer">
+            <span class="prob-icon">⟵</span>
+            <span class="prob-label">General Understeer</span>
+            <span class="prob-desc">Front feels dull everywhere</span>
+          </button>
+          <button class="problem-btn" data-problem="general_oversteer">
+            <span class="prob-icon">⟶</span>
+            <span class="prob-label">General Oversteer</span>
+            <span class="prob-desc">Rear nervous throughout the lap</span>
+          </button>
+        </div>
+
+        <div style="margin-top:6px">
+          <p class="section-header">Selected</p>
+          <div id="selected-problem-display" style="color:var(--text-muted);font-size:12px;padding:8px 0">
+            No problem selected yet
+          </div>
+        </div>
+
+        <button id="btn-go-analyze" class="btn-small" style="margin-top:2px" disabled>
+          Next: Analyze Lap →
+        </button>
+      </div>
+
+      <!-- ── Panel: Analyze ── -->
+      <div class="panel" id="panel-analyze">
+
+        <p class="section-header">Live Telemetry (last 60 s buffered)</p>
+        <div id="telemetry-strip">
+          <div class="telem-cell">
+            <span class="telem-label">Throttle</span>
+            <span class="telem-val" id="tv-throttle">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Brake</span>
+            <span class="telem-val" id="tv-brake">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Speed</span>
+            <span class="telem-val" id="tv-speed">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Lat G</span>
+            <span class="telem-val" id="tv-latg">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Steering</span>
+            <span class="telem-val" id="tv-steer">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Gear</span>
+            <span class="telem-val" id="tv-gear">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">F Tyre °C</span>
+            <span class="telem-val" id="tv-tf">–</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">R Tyre °C</span>
+            <span class="telem-val" id="tv-tr">–</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <span id="buffer-status" style="font-size:11px;color:var(--text-muted)">
+            Buffer: 0 frames
+          </span>
+          <span id="lap-time-display" style="font-size:11px;color:var(--text-muted)"></span>
+        </div>
+
+        <p class="section-header" style="margin-top:6px">Analyze captured telemetry</p>
+        <p style="font-size:11px;color:var(--text-muted);line-height:1.6">
+          Drive at least one full lap to build a useful sample. The engine will look for
+          signals that match your reported problem and generate ranked setup suggestions.
+        </p>
+        <button id="btn-analyze" disabled>Analyze Now</button>
+      </div>
+
+      <!-- ── Panel: Recommendations ── -->
+      <div class="panel" id="panel-recommendations">
+        <div id="recs-empty" class="empty-state">
+          <span class="empty-icon">🏁</span>
+          Select a problem and click "Analyze Now" to receive setup recommendations.
+        </div>
+        <div id="recs-content" style="display:none;display:flex;flex-direction:column;gap:10px">
+          <div id="confidence-badge" class="medium">⬤ <span id="conf-text">Medium confidence</span></div>
+          <div id="recs-insights-wrap">
+            <p class="section-header">Telemetry Observations</p>
+            <div id="recs-insights"></div>
+          </div>
+          <div>
+            <p class="section-header" style="margin-bottom:6px">Setup Adjustments</p>
+            <div id="recs-list"></div>
+          </div>
+          <div id="feedback-row">
+            <span>Were these suggestions helpful?</span>
+            <button class="btn-feedback" id="btn-helpful">👍 Yes</button>
+            <button class="btn-feedback" id="btn-not-helpful">👎 No</button>
+          </div>
+          <div>
+            <p class="section-header" style="margin-bottom:4px">Session Notes</p>
+            <textarea class="notes-input" id="notes-input" placeholder="Add notes about what you tried…"></textarea>
+            <button class="btn-small" id="btn-save-notes" style="margin-top:6px">Save Notes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Panel: Setup Files ── -->
+      <div class="panel" id="panel-setup">
+        <p class="section-header">Import Setup Files</p>
+        <p style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px">
+          Import one or two iRacing .sto setup files. If two files are loaded the app shows a diff
+          highlighting every changed parameter.
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <p style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px">SETUP A (BASE)</p>
+            <button class="btn-import-setup" id="btn-import-a">📂 Import Setup A</button>
+            <div id="setup-a-card" style="display:none" class="setup-file-card"></div>
+          </div>
+          <div>
+            <p style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px">SETUP B (COMPARE)</p>
+            <button class="btn-import-setup" id="btn-import-b">📂 Import Setup B</button>
+            <div id="setup-b-card" style="display:none" class="setup-file-card"></div>
+          </div>
+        </div>
+
+        <div id="setup-single-wrap" style="display:none">
+          <p class="section-header" style="margin-top:8px">Setup Values</p>
+          <div id="diff-table-wrap">
+            <table class="diff-table" id="single-table">
+              <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+              <tbody id="single-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="setup-diff-wrap" style="display:none">
+          <p class="section-header" style="margin-top:8px">
+            Setup Diff
+            <span id="diff-count" style="font-size:10px;color:var(--yellow);margin-left:6px"></span>
+          </p>
+          <div id="diff-table-wrap">
+            <table class="diff-table" id="diff-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Setup A</th>
+                  <th>Setup B</th>
+                </tr>
+              </thead>
+              <tbody id="diff-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Panel: History ── -->
+      <div class="panel" id="panel-history">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <p class="section-header">Past Coaching Sessions</p>
+          <button class="btn-small" id="btn-refresh-history">Refresh</button>
+        </div>
+        <div id="history-list">
+          <div class="empty-state">
+            <span class="empty-icon">📋</span>
+            No sessions recorded yet. Run an analysis to start building your history.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Panel: Standings ── -->
+      <div class="panel" id="panel-standings">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p class="section-header" style="margin:0">Live Standings</p>
+          <span id="standings-session-type" style="font-size:10px;color:var(--text-muted)"></span>
+        </div>
+        <div id="standings-empty" class="empty-state">
+          <span class="empty-icon">🏁</span>
+          Waiting for iRacing session…
+        </div>
+        <div id="standings-table-wrap" style="display:none">
+          <table class="standings-table" id="standings-table">
+            <thead>
+              <tr>
+                <th class="col-pos">P</th>
+                <th class="col-flag"></th>
+                <th class="col-driver">Driver</th>
+                <th class="col-car">#</th>
+                <th class="col-best">Best</th>
+                <th class="col-last">Last</th>
+              </tr>
+            </thead>
+            <tbody id="standings-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="coachRenderer.js"></script>
+</body>
+</html>

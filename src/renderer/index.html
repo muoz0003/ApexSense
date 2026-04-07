@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ApexSense</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+<div id="overlay-wrap">
   <!-- Drag handle — only active when overlay is unlocked -->
   <div id="drag-bar">
-    <span class="title"><strong>ApexSense</strong> Tire Information</span>
+    <span class="title">TIRES</span>
   </div>
 
   <!-- Main tire grid -->
@@ -53,6 +53,7 @@
         <span class="tire-pressure">-- kPa</span>
       </div>
     </div>
+    <div id="chassis-bar"><span>CHASSIS</span></div>
     <div class="tire-row">
       <div class="tire-block" id="tire-LR">
         <span class="tire-label">LEFT REAR</span>
@@ -102,6 +103,7 @@
   <!-- Status message when iRacing is not connected -->
   <div id="status-message" class="hidden"></div>
 
+</div><!-- #overlay-wrap -->
   <script src="../../dist/renderer/renderer.js"></script>
 </body>
 </html>
