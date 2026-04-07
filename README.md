@@ -1,6 +1,6 @@
 # ApexSense
 
-Real-time iRacing telemetry overlay widget built with Electron. Displays **live tire telemetry** (temperatures, wear, pressure) and a **proximity radar** as transparent HUD overlays on top of iRacing.
+A desktop overlay suite for iRacing that provides **live tire telemetry**, a **proximity radar**, a **floating standings board**, and an **AI-assisted setup coach** — all as transparent overlays directly on top of the game.
 
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![Electron](https://img.shields.io/badge/electron-28-teal)
@@ -17,25 +17,37 @@ Real-time iRacing telemetry overlay widget built with Electron. Displays **live 
 
 ## Features
 
-- **Tire Overlay** — 2×2 grid showing all four tires with color-coded temperature zones (outside / middle / inside), wear %, and pressure (kPa)
+- **Tire Overlay** — 2×2 grid with color-coded temperature zones (O/M/I), wear %, and pressure for all four tyres
 - **Proximity Radar** — Top-down canvas showing nearby cars in real time
-- **Physics-based thermal model** — Estimates live tire temperatures on track (iRacing SDK only updates temps in the pits)
-- **Drivetrain-aware** — Adjusts heat distribution for RWD, FWD, AWD, and RWD Hybrid cars
+- **Standings Board** — Floating live standings with driver data, column toggles, multi-class grouping, and position-change animations
+- **Setup Coach** — 5-step guided workflow that records lap telemetry and generates targeted setup recommendations
+- **Physics-based thermal model** — Estimates live tyre temperatures on track (iRacing SDK only updates temps in the pits)
+- **Drivetrain-aware** — Adjusts heat distribution for RWD, FWD, AWD, and RWD Hybrid
 - **Frameless & transparent** — Overlays sit on top of the game with no window chrome
+
+---
+
+## Download
+
+**[Download the latest release (.zip)](https://davidmunozjensen.com/ApexSense/ApexSense-win32-x64.zip)** — no installation or Node.js required. Extract the zip and run `ApexSense.exe`.
+
+**[Support & info](https://davidmunozjensen.com/apexsense-support.html)**
 
 ---
 
 ## Architecture Overview
 
-The app runs **three windows**:
+The app runs **five windows**:
 
-| Window | Purpose | Size (default) |
-|--------|---------|----------------|
-| **Launcher** | Settings panel — start/stop overlays, adjust thresholds, configure radar | 420 × 560 px |
-| **Tire Overlay** | Transparent HUD showing live tire temps, wear & pressures | 440 × 360 px (scalable) |
+| Window | Purpose | Default Size |
+|--------|---------|--------------|
+| **Launcher** | Settings panel — start/stop overlays, configure all options | 420 × 960 px |
+| **Tire Overlay** | Transparent HUD — live tyre temps, wear & pressure for all 4 tyres | 440 × 310 px (scalable) |
 | **Radar Overlay** | Top-down proximity canvas showing nearby cars | 200 × 420 px (scalable) |
+| **Standings Board** | Floating live standings with driver data, column toggles, multi-class grouping | 900 × 500 px (resizable) |
+| **About / FAQ** | Scrollable help page with features, FAQ and support links | 700 × 580 px |
 
-All windows are **frameless** (no OS title bar). The overlay and radar windows are **transparent** and designed to sit on top of iRacing during gameplay.
+All overlay windows are **frameless** and **transparent**, designed to sit above iRacing during gameplay. The standings board is the only overlay that is **resizable** — its size is remembered between sessions.
 
 ---
 
@@ -43,19 +55,30 @@ All windows are **frameless** (no OS title bar). The overlay and radar windows a
 
 ### What It Shows
 
-A 2×2 grid displaying all four tires (LEFT FRONT, RIGHT FRONT, LEFT REAR, RIGHT REAR). Each tile shows three temperature zones and additional data:
+A 2×2 grid (LEFT FRONT / RIGHT FRONT / LEFT REAR / RIGHT REAR) separated by a chassis divider. Each tile shows:
 
-- **Outside temperature** (°C) — outer tread sensor (left sensor for left-side tires, right sensor for right-side tires)
-- **Middle temperature** (°C) — center tread sensor
-- **Inside temperature** (°C) — inner tread sensor
-- **Wear %** — average tread wear across all three sensors (0 % = new, 100 % = worn out)
-- **Pressure** (kPa) — live tire pressure from the SDK
+- **Zone labels** — O (outside), M (middle), I (inside) above each temperature cell
+- **Temperature** (°C) per tread zone
+- **Wear %** — average across all three sensors (0 % = new, 100 % = worn out)
+- **Pressure** (kPa) — live from the SDK
 
-Each zone cell is individually color-coded based on its temperature.
+Zone cells are individually colour-coded using a dark-toned palette (cold blues → forest green → amber → crimson).
+
+### Colour Palette
+
+| State | Hex | Meaning |
+|-------|-----|---------|
+| Cold | `#0d1521` (deep blue) | Too cold — no grip |
+| Warming | `#142818` (dark green) | Building temperature |
+| Ideal | `#142818` (dark forest green) | Optimal operating zone |
+| Hot | `#2c220e` (dark amber) | Caution |
+| Overheating | `#2c0f16` (dark crimson) | Tyre degradation risk |
+
+> **Thresholds are fully adjustable** in the launcher's Tires tab. Tune them per car/compound.
 
 ### Real-Time Temperature Estimation
 
-iRacing's SDK only updates tire temperature channels when the car is **in the pits**. Once you leave pit lane, those values freeze at the last pit reading. To solve this, ApexSense includes a **physics-based thermal estimation model** that provides live estimated temperatures while on track.
+iRacing's SDK only updates tyre temperature channels when the car is **in the pits**. Once you leave pit lane, those values freeze at the last pit reading. To solve this, ApexSense includes a **physics-based thermal estimation model** that provides live estimated temperatures while on track.
 
 #### Drivetrain Detection
 
@@ -204,155 +227,233 @@ When the car enters the pits (detected via four redundant sources: `OnPitRoad`, 
 | `CarIdxTrackSurface` | Per-car track surface enum (1 = InPitStall, 2 = ApproachingPits) |
 | `PlayerTrackSurface` | Player-specific track surface enum |
 
-### Color Palette
-
-Colors transition smoothly using linear interpolation through the ApexSense palette:
-
-| Temperature | Color | Hex | Meaning |
-|-------------|-------|-----|--------|
-| Below cold threshold | Dark teal | `#16231f` | Too cold — no grip |
-| Warming / Ideal range | Forest green | `#213c30` | **Optimal operating zone** |
-| Above hot threshold | Amber | `#433b24` | Caution — getting hot |
-| Above overheat threshold | Crimson | `#412126` | Overheating — tire degradation risk |
-
-> **Thresholds are fully adjustable** in the launcher's Tires tab. Tune them per car/compound.
-
 ---
 
 ## Proximity Radar
 
 ### What It Shows
 
-A 180 × 380 pixel canvas rendered at 60 fps. Your car is fixed at the center; nearby cars appear as colored rectangles that move relative to your position.
+A canvas centred on your car showing nearby cars as coloured rectangles (180 × 380 px, 60 fps). Your car is fixed at the centre; nearby cars appear as coloured rectangles that move relative to your position.
 
-### Proximity Colors
+### Colour Coding
 
-| Distance | Color | Meaning |
-|----------|-------|---------|
+| Distance | Colour | Meaning |
+|----------|--------|---------|
 | < 5 m | Red | Danger — collision risk |
 | 5–15 m | Yellow | Caution |
 | > 15 m | Green | Safe distance |
 
-Cars near the edge of the radar range fade out smoothly rather than disappearing abruptly.
+Cars near the edge of the detection range fade out smoothly.
 
 ### Spotter Integration
 
-The radar uses iRacing's built-in `CarLeftRight` spotter data to shift nearby cars laterally:
+Uses iRacing's `CarLeftRight` enum to shift nearby cars laterally and display side danger bars.
 
-| Spotter Value | Behavior |
-|---------------|----------|
-| Clear | Cars stay centered |
+| Spotter Value | Behaviour |
+|---------------|-----------|
+| Clear | Cars stay centred |
 | Car Left | Closest car(s) shifted to the left lane |
 | Car Right | Closest car(s) shifted to the right lane |
 | Cars Both Sides | Closest car pushed to appropriate side |
 | 2 Cars Left/Right | Same as single, with doubled indication |
 
-Side danger bars appear on the left/right edges when the spotter is active.
-
 ### Smoothing
 
-Car positions are interpolated at a factor of 0.12, so cars glide to new positions instead of teleporting. This produces fluid 60 fps animation.
+Car positions are interpolated at a factor of 0.12, so cars glide to new positions instead of teleporting.
 
-### Car Size
+### Settings
 
-Car rectangle dimensions are adjustable from the launcher's **Radar** tab:
+| Setting | Default | Range |
+|---------|---------|-------|
+| Radar Range | 40 m | 15–60 m |
+| Radar Scale | 1.0 | 0.5–2.5 |
+| Radar Opacity | 0.9 | 0.2–1.0 |
+| Car Width | 20 px | 8–60 px |
+| Car Height | 48 px | 20–100 px |
 
-- **Width**: 8–60 px (default 20)
-- **Height**: 20–100 px (default 48)
+The radar automatically hides when no cars are nearby, and filters out cars on pit road or off-track.
 
-Changes apply in real-time and persist across sessions.
+---
 
-### Filtering
+## Standings Board
 
-The radar automatically hides:
-- Cars on pit road
-- Cars off-track
-- Cars beyond the configured radar range
-- The entire radar when no cars are nearby
+### What It Shows
+
+A floating, scrollable standings overlay listing all drivers in the session. Columns are individually togglable both from the launcher's Standings tab and from toggle buttons inside the overlay.
+
+| Column | Description |
+|--------|-------------|
+| **Pos** | Race / practice position with animated position-change indicators (▲▼) |
+| **Flag** | Country flag derived from iRacing's `FlairName` field (full country names like "Brazil", "United States") |
+| **Car #** | Car number |
+| **Make** | Car model name with manufacturer logo |
+| **iRating** | Driver iRating |
+| **SR** | Safety rating with licence-colour coding (R/D/C/B/A/P) |
+| **Best** | Best lap time |
+| **Last** | Last lap time |
+| **Inc** | Incident count with colour-coded severity badge |
+
+### Multi-Class Support
+
+In multi-class sessions (e.g. GT4 + LMP3), drivers are automatically grouped by `CarClassID`. Each class group is preceded by a header row showing the class name and a colour dot derived from the iRacing `CarClassColor` value. Single-class sessions show no separator rows.
+
+### Practice Mode
+
+In practice sessions `CarIdxPosition` is 0 for all drivers. The standings automatically detects this and ranks drivers by best lap time, assigning synthetic positions 1…N (drivers with no lap time appear at the bottom).
+
+### Scroll While Locked
+
+When overlays are locked (click-through mode), hovering over the standings table briefly captures mouse events so you can scroll — then releases them on mouse-leave so clicks still pass through to the game.
+
+### Position Change Animations
+
+- **Gained positions** — row slides up with a green flash (`row-pop-up` keyframe)
+- **Lost positions** — row slides down with a red flash (`row-pop-down` keyframe)
+- **New entry** — fades in from the left (`row-appear` keyframe)
+
+### Window Behaviour
+
+- Default width: 900 px (freely resizable)
+- Window size and position saved on `resized` / `moved` events and restored on next launch
+
+---
+
+## Setup Coach
+
+### Overview
+
+A 5-step guided workflow that analyses lap telemetry and generates targeted setup recommendations.
+
+| Step | What You Do |
+|------|------------|
+| **1 — Import Setup** | Paste or load your current iRacing `.sto` setup file |
+| **2 — Select Problem** | Choose the handling issue you're experiencing |
+| **3 — Record Lap** | Drive a lap while ApexSense records your telemetry |
+| **4 — Recommendations** | Review ranked setup adjustments with telemetry evidence |
+| **5 — Export Setup** | Download a modified `.sto` file ready to load in iRacing |
+| **History** | Review all past coach sessions |
+
+### Supported Problems
+
+| ID | Label |
+|----|-------|
+| `understeer_entry` | Understeer on corner entry |
+| `oversteer_exit` | Oversteer on corner exit |
+| `poor_traction` | Poor traction out of slow corners |
+| `understeer_mid` | Understeer mid-corner |
+| `oversteer_mid` | Oversteer mid-corner |
+| `braking_instability` | Car unstable under braking |
+| `bad_topspeed` | Lacking top-end speed |
+| `general_understeer` | General understeer |
+| `general_oversteer` | General oversteer |
+
+### Car Categories
+
+| Category | Example Cars |
+|----------|-------------|
+| `formula` | F3, F4, IndyCar, Pro Mazda, IR-18 |
+| `gt` | GT3, GT4, GTE |
+| `prototype` | LMP2, LMDh/GTP |
+| `stockcar` | NASCAR, ARCA |
+| `touring` | TCR |
+| `sportsman` | Skip Barber, MX-5, Street Stock |
+
+### Analysis
+
+The engine records `TelemetryFrame` objects at the poll interval (throttle, brake, steering, speed, lat/long acceleration, gear, RPM, lap distance %, per-tyre temps). After recording it:
+
+1. Computes aggregate metrics (average throttle/brake/lat-accel, tyre temp deltas, traction loss indicators)
+2. Scores each `SetupAdjustment` against `ProblemRule.telemetryHints`
+3. Boosts high-evidence adjustments and sorts by impact × evidence
+4. Returns a `CoachAnalysis` with confidence level (`low` / `medium` / `high`) and human-readable `TelemetryInsight` entries
+
+### Session Bar
+
+While the Coach tab is active, the launcher shows a live session bar with: connection dot, player country flag, car logo, car name, track name, air temperature, track temperature, and air-to-track delta.
 
 ---
 
 ## Telemetry System
 
-### How It Connects
-
-The app uses the **irsdk-node** native addon (v4.4.0) to communicate with iRacing's shared memory telemetry interface. Telemetry runs in a separate **forked child process** using `ELECTRON_RUN_AS_NODE=1` so it uses Electron's embedded Node.js runtime — no separate Node.js installation required.
-
-### Data Flow
+### Architecture
 
 ```
 iRacing SDK (shared memory)
     ↓
-telemetryWorker.js (child process, polls at configurable interval)
+telemetryWorker.js (forked child process, ELECTRON_RUN_AS_NODE=1)
     ↓  IPC messages
 main.ts (Electron main process)
     ↓  webContents.send()
-Tire Overlay renderer    Radar renderer
+Tire renderer · Radar renderer · Standings renderer · Coach (launcher)
 ```
 
-### Polling Rate
+The worker runs in a separate process using Electron's embedded Node.js — no external Node.js installation required.
 
-Default: **200 ms** (5 updates/sec). Adjustable from 50 ms (20 Hz) to 2000 ms (0.5 Hz) in the launcher's General tab.
+### Polling
 
-### Auto-Recovery
+Default: **200 ms** (5 Hz). Adjustable 50–2000 ms from the General tab. If the worker crashes, the main process auto-respawns it after 2 seconds.
 
-If the telemetry worker crashes, the main process waits 2 seconds and respawns it automatically.
+### iRacing SDK Channels
 
-### Data Collected
-
-**Per tire (LF, RF, LR, RR):**
-- Temperature Outside (°C): outer tread sensor
-- Temperature Middle (°C): center tread sensor
-- Temperature Inside (°C): inner tread sensor
-- Wear (%): average of left, center, and right wear sensors (SDK 0–1 → percentage)
-- Pressure (kPa)
-
-**Radar:**
-- Player speed (m/s)
-- Spotter state (`CarLeftRight` enum)
-- Nearby cars: index + relative distance in metres
-- Track length for lap-distance-to-metres conversion
-
-### Track Wrapping
-
-Lap-distance percentages wrap correctly across the start/finish line:
-
-```
-if delta >  0.5 → subtract 1.0
-if delta < -0.5 → add 1.0
-```
-
-This prevents cars on different laps from appearing at wrong positions.
+| Channel | Used By |
+|---------|---------|
+| `LFtempCL/CM/CR`, `RFtempCL/CM/CR`, etc. | Tyre zone temperatures |
+| `LFwearL/M/R`, etc. | Tyre wear |
+| `LFpressure`, `RFpressure`, etc. | Tyre pressure |
+| `Speed` | Radar, tyre estimation cooling |
+| `LatAccel` | Tyre estimation cornering heat |
+| `Brake`, `Throttle` | Tyre estimation heat sources |
+| `CarLeftRight` | Radar spotter integration |
+| `TrackTempCrew`, `AirTemp` | Tyre estimation baseline |
+| `WindSpeed`, `RelativeHumidity` | Tyre estimation cooling |
+| `OnPitRoad`, `CarIdxOnPitRoad`, `CarIdxTrackSurface`, `PlayerTrackSurface` | Pit detection |
+| `DriverInfo.Drivers[].CarClassID/ShortName/Color` | Standings multi-class grouping |
+| `DriverInfo.Drivers[].FlairName` | Country flag (full country name, e.g. "Brazil") |
+| `DriverInfo.Drivers[].IRating` | iRating column |
+| `DriverInfo.Drivers[].LicString` | Safety rating column |
+| `CarIdxPosition`, `CarIdxBestLapTime`, `CarIdxLastLapTime`, `CarIdxF2Time` | Standings positions & lap times |
+| `CarIdxIncidents` | Incident count |
 
 ---
 
 ## Configuration
 
-### Where Settings Are Stored
-
-`{userData}/overlay-config.json` — a human-readable JSON file in Electron's user data directory. Settings persist across sessions and are merged with defaults on load (so new settings added in updates get their defaults automatically).
+Stored at `{userData}/overlay-config.json`. Merged with defaults on load, so new fields added in updates get their defaults automatically.
 
 ### All Settings
 
-| Setting | Default | Range | Description |
-|---------|---------|-------|-------------|
-| `widgetScale` | 1.0 | 0.5–2.5 | Tire overlay size multiplier |
-| `opacity` | 0.9 | 0.2–1.0 | Tire overlay transparency |
-| `alwaysOnTop` | true | — | Keep overlays above all windows |
-| `locked` | false | — | Click-through mode (no dragging) |
-| `pollIntervalMs` | 200 | 50–2000 | Telemetry update interval |
-| `coldRedMax` | 50 °C | — | Below this = too cold (red) |
-| `coldYellowMax` | 70 °C | — | Cold → ideal threshold |
-| `hotYellowMin` | 110 °C | — | Ideal → hot threshold |
-| `hotRedMin` | 130 °C | — | Above this = overheating (red) |
-| `radarEnabled` | true | — | Show radar window |
-| `radarScale` | 1.0 | 0.5–2.5 | Radar window size multiplier |
-| `radarOpacity` | 0.9 | 0.2–1.0 | Radar transparency |
-| `radarRange` | 40 m | 15–60 | Detection range ahead/behind |
-| `radarCarWidth` | 12 px | 8–60 | Car rectangle width on radar |
-| `radarCarHeight` | 28 px | 20–100 | Car rectangle height on radar |
-
-Window positions (tire overlay & radar) are also saved and restored automatically.
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `widgetScale` | 1.0 | Tyre overlay scale |
+| `opacity` | 0.9 | Tyre overlay opacity |
+| `alwaysOnTop` | `true` | Keep all overlays above iRacing |
+| `locked` | `false` | Click-through mode |
+| `pollIntervalMs` | 200 | Telemetry update interval (ms) |
+| `tiresEnabled` | `true` | Show tyre overlay |
+| `radarEnabled` | `true` | Show radar overlay |
+| `radarScale` | 1.0 | Radar scale |
+| `radarOpacity` | 0.9 | Radar opacity |
+| `radarRange` | 40 m | Detection range ahead/behind |
+| `radarCarWidth` | 20 px | Car rectangle width on radar |
+| `radarCarHeight` | 48 px | Car rectangle height on radar |
+| `standingsEnabled` | `false` | Show standings overlay |
+| `standingsOpacity` | 0.9 | Standings opacity |
+| `standingsShowFlags` | `true` | Country flag column |
+| `standingsShowCarNumber` | `true` | Car number column |
+| `standingsShowMake` | `true` | Car model column |
+| `standingsShowIRating` | `false` | iRating column |
+| `standingsShowSafetyRating` | `false` | Safety rating column |
+| `standingsShowBestLap` | `false` | Best lap column |
+| `standingsShowLastLap` | `true` | Last lap column |
+| `standingsShowIncidents` | `false` | Incident count column |
+| `coldRedMax` | 50 °C | Cold threshold |
+| `coldYellowMax` | 70 °C | Warming threshold |
+| `hotYellowMin` | 110 °C | Hot threshold |
+| `hotRedMin` | 130 °C | Overheat threshold |
+| `overlayPosition` | auto | Saved tyre overlay [x, y] |
+| `radarPosition` | auto | Saved radar [x, y] |
+| `standingsPosition` | auto | Saved standings [x, y] |
+| `standingsSize` | `[900, 500]` | Saved standings [w, h] |
 
 ---
 
@@ -362,50 +463,43 @@ Window positions (tire overlay & radar) are also saved and restored automaticall
 
 **General**
 - Always on Top toggle
-- Lock overlays (click-through) toggle
-- Poll interval slider with descriptive hints
-- "Fuel the Development" support link
+- Lock overlays toggle (click-through)
+- Poll interval input with usage hints
+- Fuel the Development support card
 - About / FAQ button
 
 **Tires**
+- Enable Tires Overlay toggle
 - Widget Scale slider
 - Opacity slider
-- Enable Radar toggle (synced with Radar tab)
-- Four temperature threshold inputs (°C) with a visual zone bar
+- Temperature threshold inputs (°C) with visual zone bar
 
 **Radar**
-- Enable Radar toggle (synced with Tires tab)
-- Radar Range slider (metres)
-- Radar Scale slider
-- Radar Opacity slider
-- Car Width slider (8–60 px)
-- Car Height slider (20–100 px)
-- Color legend (red/yellow/green distances)
+- Enable Radar toggle
+- Radar Range, Scale, Opacity sliders
+- Car Width / Height sliders
+- Distance colour legend
 
-Each tab has its own **Save Settings** button.
+**Standings**
+- Enable Standings Overlay toggle
+- Opacity slider
+- 8 column visibility checkboxes (Country Flags, Car Number, Car Model, iRating, Safety Rating, Best Lap, Last Lap, Incidents)
+
+**Coach**
+- Live session bar (connection, car, track, weather)
+- 5-step guided workflow: Import Setup → Select Problem → Record Lap → Recommendations → Export Setup
+- Session history
 
 ---
 
-## Window Behavior
+## Window Behaviour
 
-### Lock / Unlock
+| State | Behaviour |
+|-------|-----------|
+| **Unlocked** | Drag bars visible, dashed border in move mode, windows draggable |
+| **Locked** | All overlays are click-through (`setIgnoreMouseEvents(true, { forward: true })`). Standings board still scrollable by hovering over the table |
 
-| State | Behavior |
-|-------|----------|
-| **Unlocked** | Windows show a dashed border (move-mode), drag bar is visible, click events are captured |
-| **Locked** | Windows are click-through (clicks pass to the game), drag bar hidden, minimal visual footprint |
-
-### Always on Top
-
-Uses Electron's `screen-saver` z-level to stay above fullscreen applications including iRacing.
-
-### Scaling
-
-Both overlays scale via CSS `zoom`. The Electron window resizes to match: `baseSize × scale`.
-
-### Position Persistence
-
-Dragging an overlay saves its `[x, y]` position to config immediately, so it returns to the same spot next launch.
+Window positions auto-save on `moved` event. Standings size auto-saves on `resized` event. Everything restores on next launch.
 
 ---
 
@@ -416,15 +510,15 @@ Dragging an overlay saves its `[x, y]` position to config immediately, so it ret
 | Desktop framework | Electron 28 |
 | Language | TypeScript 5.3 (strict mode) |
 | iRacing SDK binding | irsdk-node 4.4.0 |
-| Rendering | HTML5 Canvas (radar), CSS (tires) |
+| Rendering | HTML5 Canvas (radar), CSS (tyre overlay, standings) |
 | Build target | ES2020, CommonJS |
-| Font | Poppins (Google Fonts CDN) |
-| Packaging | @electron/packager (portable exe) |
-| Security | Context isolation, no nodeIntegration, preload scripts via contextBridge |
+| Fonts | Segoe UI (system — tyre/standings overlays), Poppins (Google Fonts CDN — launcher/coach) |
+| Packaging | @electron/packager — portable exe, no installer |
+| Security | Context isolation on, no nodeIntegration, all IPC via contextBridge preload scripts |
 
 ---
 
-## Prerequisites
+## Prerequisites (source build only)
 
 - **Windows 10/11** (x64)
 - **Node.js** 18 or later — [https://nodejs.org](https://nodejs.org)
@@ -450,9 +544,7 @@ npm run build
 npm start
 ```
 
-### Quick start (alternative)
-
-Double-click **Start.bat** — it compiles and launches in one step.
+Double-click **Start.bat** to compile and launch in one step.
 
 ---
 
@@ -470,13 +562,13 @@ npx electron .
 
 ---
 
-## Packaging a release
+## Packaging a Release
 
 ```bash
 npm run package
 ```
 
-This produces a portable build in `release/ApexSense-win32-x64/` that can be run without Node.js installed.
+Produces a portable build in `release/ApexSense-win32-x64/` that runs without Node.js installed.
 
 ---
 
@@ -484,13 +576,15 @@ This produces a portable build in `release/ApexSense-win32-x64/` that can be run
 
 ```
 src/
-├── main/           # Electron main process (main.ts, preloads)
-├── renderer/       # Tire overlay & radar overlay (HTML/CSS/TS)
-├── launcher/       # Settings launcher window
-├── config.ts       # Default configuration
-├── configStore.ts  # Persistent config storage
-├── telemetry.ts    # iRacing SDK telemetry reader
-└── telemetryWorker.ts  # Background telemetry worker
+├── main/               # Electron main process (main.ts, preloads)
+├── renderer/           # Tyre overlay & radar (HTML/CSS/TS, standingsRenderer.ts)
+├── launcher/           # Settings launcher window
+├── coach/              # Setup coach engine, renderer, store, setup parser/rules
+├── about/              # About / FAQ page
+├── config.ts           # Default configuration
+├── configStore.ts      # Persistent config storage
+├── telemetry.ts        # iRacing SDK telemetry types & reader
+└── telemetryWorker.ts  # Background telemetry worker (forked child process)
 ```
 
 ---
@@ -498,25 +592,31 @@ src/
 ## FAQ
 
 **Q: Does it work with VR?**
-A: Yes — the overlay uses `alwaysOnTop` with `screen-saver` z-level, so it renders above the game. In VR, you'll see it on your monitor but not in the headset. Use a VR overlay tool (like OVR Toolkit) to bring it into VR if needed.
+A: The overlays render on your monitor. Use a VR overlay tool like OVR Toolkit to bring them into the headset.
 
-**Q: Do users need Node.js installed to run the exe?**
-A: No. The packaged exe includes Electron's own Node.js runtime. The telemetry worker runs via `ELECTRON_RUN_AS_NODE=1`, so no external Node.js is required.
+**Q: Do I need Node.js installed?**
+A: No. The packaged exe includes Electron's own Node.js runtime.
+
+**Q: What if iRacing isn't running?**
+A: All overlays display a "Waiting for iRacing telemetry…" message and auto-connect when a session starts.
 
 **Q: Can I change thresholds per car?**
-A: The code architecture supports per-car thresholds, but the current UI applies a single set globally. Adjust the four threshold values in the Tires tab to match the car/compound you're driving.
+A: Adjust the four threshold values in the Tires tab. They apply globally — tune them per car/compound before a session.
 
-**Q: What happens if iRacing isn't running?**
-A: The overlay shows "Waiting for iRacing telemetry…" and continues polling. It connects automatically when iRacing starts a session.
+**Q: The radar is too cluttered. How do I clean it up?**
+A: Reduce Radar Range (min 15 m) in the Radar tab.
 
-**Q: My radar is too cluttered. How do I clean it up?**
-A: Reduce the Radar Range slider (default 40 m, minimum 15 m). You can also resize car rectangles using the Width/Height sliders in the launcher's Radar tab.
+**Q: How does the standings overlay know my country?**
+A: It reads the `FlairName` field from the iRacing SDK driver info, which returns full country names (e.g. "Brazil", "United States"). These are mapped to ISO codes for flag images.
 
 **Q: Can I move the overlays?**
-A: Unlock them first (uncheck "Lock overlays" in General tab). Then drag them by their title bar. Your position is saved automatically.
+A: Unlock them first (uncheck "Lock overlays" in the General tab), then drag by the title bar. Position saves automatically.
 
-**Q: How do I make the overlay invisible to the game?**
-A: Lock the overlays. When locked, all clicks pass through to the window below. The overlays become non-interactive and click-through.
+**Q: What does the standings overlay show in practice?**
+A: In practice all `CarIdxPosition` values are 0, so the standings ranks drivers by best lap time automatically.
+
+**Q: How does the Setup Coach work?**
+A: Import your `.sto` setup file, pick the handling problem, drive one lap while recording, and the coach ranks setup adjustments by priority using your telemetry data. Export the modified `.sto` to load directly in iRacing.
 
 ---
 
